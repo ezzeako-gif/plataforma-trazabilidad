@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Trazabilidad e Inventario - Ingeniería Informática</title>
-    <!-- Tailwind CSS para diseño profesional -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-    <!-- Barra de Navegación Superior -->
     <header class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold tracking-wider text-cyan-400 flex items-center gap-2">
@@ -23,10 +21,8 @@
 
     <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-        <!-- SECCIÓN 1: FORMULARIO Y RESUMEN -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Formulario de Registro (Módulo de Entrada) -->
             <div class="lg:col-span-1 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
                 <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     📥 Registrar Activo TI
@@ -63,7 +59,6 @@
                 </form>
             </div>
 
-            <!-- Panel del Inventario en Tiempo Real -->
             <div class="lg:col-span-2 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl flex flex-col">
                 <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     📊 Inventario de Recursos Tecnológicos
@@ -80,42 +75,43 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-activos" class="divide-y divide-gray-700/50">
-                            <!-- Datos inyectados dinámicamente -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN 2: BITÁCORA DE AUDITORÍA (TRAZABILIDAD) -->
         <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
             <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">
                 📜 Bitácora de Auditoría y Logs (Cumplimiento de Seguridad)
             </h2>
             <div class="bg-gray-950 p-4 rounded-lg font-mono text-xs text-green-400 border border-gray-800 max-h-[220px] overflow-y-auto space-y-2" id="logs-auditoria">
-                <!-- Logs inyectados en orden cronológico -->
-            </div>
+                </div>
         </div>
 
     </main>
 
-    <!-- Pie de página académico -->
     <footer class="text-center text-xs text-gray-500 py-6 mt-12 border-t border-gray-800/50">
         <p>Creado por Rosa Reyes &copy; 2026 | Asignatura de Gestión de Infraestructura TI</p>
     </footer>
 
-    <!-- LÓGICA DE CONEXIÓN A LA API DE RENDER -->
     <script>
-        // Endpoint público de tu contenedor en Render
+        // Endpoint de tu API lógica desplegada en Render
         const API_URL = 'https://lab-backend-k7c0.onrender.com/api';
 
-        // 1. Cargar datos iniciales al abrir la página
+        // TRUCO SEGURO: Envía un estímulo en silencio a Render en cuanto el profesor abre el sitio.
+        // Esto enciende tu servidor remoto si estaba dormido y NO altera las tablas de PostgreSQL.
+        fetch('https://lab-backend-k7c0.onrender.com/')
+            .then(() => console.log('⏰ Señal de activación enviada al contenedor en Render.'))
+            .catch(err => console.error('Error despertando el servidor:', err));
+
+        // Cargar datos iniciales al abrir la página
         document.addEventListener('DOMContentLoaded', () => {
             obtenerActivos();
             obtenerLogs();
         });
 
-        // 2. Función para obtener los activos registrados
+        // Función para consultar los activos registrados
         async function obtenerActivos() {
             try {
                 const res = await fetch(`${API_URL}/activos`);
@@ -148,7 +144,7 @@
             }
         }
 
-        // 3. Función para obtener la bitácora criptográfica/logs de auditoría
+        // Función para consultar la bitácora criptográfica/logs de auditoría
         async function obtenerLogs() {
             try {
                 const res = await fetch(`${API_URL}/bitacora`);
@@ -176,7 +172,7 @@
             }
         }
 
-        // 4. Manejar el envío del formulario para agregar un activo
+        // Manejar el envío del formulario para agregar un activo
         document.getElementById('form-activo').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -195,17 +191,17 @@
                 });
 
                 if (res.ok) {
-                    // Limpiar el formulario
+                    // Limpiar campos del formulario
                     document.getElementById('form-activo').reset();
-                    // Refrescar ambas vistas para ver los cambios en vivo desde internet
+                    // Refrescar vistas con los datos en la nube
                     await obtenerActivos();
                     await obtenerLogs();
                 } else {
-                    alert("Error al registrar el activo. Revisa los datos correspondientes.");
+                    alert("Error al registrar el activo. Revisa que el código único no esté repetido.");
                 }
             } catch (err) {
                 console.error("Error en la petición POST:", err);
-                alert("No se pudo conectar con el servidor en la nube.");
+                alert("❌ El servidor en la nube está despertando de su suspensión. Por favor, espera un minuto completo y vuelve a hacer clic en registrar.");
             }
         });
     </script>
