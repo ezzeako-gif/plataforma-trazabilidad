@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Trazabilidad e Inventario - Ingeniería Informática</title>
+    <!-- Tailwind CSS para diseño profesional -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
+    <!-- Barra de Navegación Superior -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wider text-cyan-400 flex items-center gap-2">
+                🛡️ Plataforma de Trazabilidad Tecnológica
+            </h1>
+            <span class="text-xs bg-gray-700 px-3 py-1 rounded-full text-gray-300 border border-gray-600">
+                Entorno: Nube (Render)
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+
+        <!-- SECCIÓN 1: FORMULARIO Y RESUMEN -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Formulario de Registro (Módulo de Entrada) -->
+            <div class="lg:col-span-1 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
+                <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    📥 Registrar Activo TI
+                </h2>
+                <form id="form-activo" class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Nombre del Dispositivo</label>
+                        <input type="text" id="nombre" required placeholder="Ej. Servidor HP ProLiant" 
+                            class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Código Único (Etiqueta)</label>
+                        <input type="text" id="codigo" required placeholder="Ej. INF-SRV-02" 
+                            class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Categoría del Recurso</label>
+                        <select id="categoria" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                            <option value="Servidores">Servidores</option>
+                            <option value="Redes (Routers/Switches)">Redes (Routers/Switches)</option>
+                            <option value="Equipos de Cómputo">Equipos de Cómputo</option>
+                            <option value="Periféricos de Auditoría">Periféricos de Auditoría</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Ubicación Física (Laboratorio)</label>
+                        <input type="text" id="ubicacion" required placeholder="Ej. Laboratorio de Redes y Ciberseguridad" 
+                            class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                    </div>
+                    <button type="submit" 
+                        class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 cursor-pointer text-sm shadow-lg shadow-cyan-900/20 mt-2">
+                        Desplegar Alta de Activo
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panel del Inventario en Tiempo Real -->
+            <div class="lg:col-span-2 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl flex flex-col">
+                <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    📊 Inventario de Recursos Tecnológicos
+                </h2>
+                <div class="overflow-x-auto rounded-lg border border-gray-700 flex-grow max-h-[310px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="bg-gray-900 text-xs uppercase tracking-wider text-gray-400 sticky top-0">
+                            <tr>
+                                <th class="p-3 border-b border-gray-700">Código</th>
+                                <th class="p-3 border-b border-gray-700">Nombre</th>
+                                <th class="p-3 border-b border-gray-700">Categoría</th>
+                                <th class="p-3 border-b border-gray-700">Ubicación</th>
+                                <th class="p-3 border-b border-gray-700 text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-activos" class="divide-y divide-gray-700/50">
+                            <!-- Datos inyectados dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: BITÁCORA DE AUDITORÍA (TRAZABILIDAD) -->
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
+            <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">
+                📜 Bitácora de Auditoría y Logs (Cumplimiento de Seguridad)
+            </h2>
+            <div class="bg-gray-950 p-4 rounded-lg font-mono text-xs text-green-400 border border-gray-800 max-h-[220px] overflow-y-auto space-y-2" id="logs-auditoria">
+                <!-- Logs inyectados en orden cronológico -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Pie de página académico -->
+    <footer class="text-center text-xs text-gray-500 py-6 mt-12 border-t border-gray-800/50">
+        <p>Creado por Rosa Reyes &copy; 2026 | Asignatura de Gestión de Infraestructura TI</p>
+    </footer>
+
+    <!-- LÓGICA DE CONEXIÓN A LA API DE RENDER -->
+    <script>
+        // Endpoint público de tu contenedor en Render
+        const API_URL = 'https://lab-backend-k7c0.onrender.com/api';
+
+        // 1. Cargar datos iniciales al abrir la página
+        document.addEventListener('DOMContentLoaded', () => {
+            obtenerActivos();
+            obtenerLogs();
+        });
+
+        // 2. Función para obtener los activos registrados
+        async function obtenerActivos() {
+            try {
+                const res = await fetch(`${API_URL}/activos`);
+                const activos = await res.json();
+                const tbody = document.getElementById('tabla-activos');
+                tbody.innerHTML = '';
+
+                if(activos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No hay activos registrados en la nube.</td></tr>`;
+                    return;
+                }
+
+                activos.forEach(activo => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-700/30 transition-colors">
+                            <td class="p-3 font-mono text-cyan-400 font-medium">${activo.codigo}</td>
+                            <td class="p-3 font-medium text-gray-200">${activo.nombre}</td>
+                            <td class="p-3 text-gray-400">${activo.categoria}</td>
+                            <td class="p-3 text-gray-400">${activo.ubicacion}</td>
+                            <td class="p-3 text-center">
+                                <span class="bg-green-900/40 text-green-400 text-xs px-2.5 py-0.5 rounded-full border border-green-800/60">
+                                    ${activo.estado}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error cargando inventario:", err);
+            }
+        }
+
+        // 3. Función para obtener la bitácora criptográfica/logs de auditoría
+        async function obtenerLogs() {
+            try {
+                const res = await fetch(`${API_URL}/bitacora`);
+                const logs = await res.json();
+                const contenedorLogs = document.getElementById('logs-auditoria');
+                contenedorLogs.innerHTML = '';
+
+                if(logs.length === 0) {
+                    contenedorLogs.innerHTML = `<p class="text-gray-600 italic">[SISTEMA] Esperando inicialización del primer log...</p>`;
+                    return;
+                }
+
+                logs.forEach(log => {
+                    const fechaLegible = new Date(log.fecha).toLocaleString();
+                    contenedorLogs.innerHTML += `
+                        <p class="leading-relaxed">
+                            <span class="text-gray-500">[${fechaLegible}]</span> 
+                            <span class="text-amber-500 font-bold">${log.accion}</span>: 
+                            <span class="text-gray-300">${log.detalles}</span>
+                        </p>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error cargando bitácora:", err);
+            }
+        }
+
+        // 4. Manejar el envío del formulario para agregar un activo
+        document.getElementById('form-activo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                codigo: document.getElementById('codigo').value,
+                categoria: document.getElementById('categoria').value,
+                ubicacion: document.getElementById('ubicacion').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/activos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                if (res.ok) {
+                    // Limpiar el formulario
+                    document.getElementById('form-activo').reset();
+                    // Refrescar ambas vistas para ver los cambios en vivo desde internet
+                    await obtenerActivos();
+                    await obtenerLogs();
+                } else {
+                    alert("Error al registrar el activo. Revisa los datos correspondientes.");
+                }
+            } catch (err) {
+                console.error("Error en la petición POST:", err);
+                alert("No se pudo conectar con el servidor en la nube.");
+            }
+        });
+    </script>
+</body>
+</html>
