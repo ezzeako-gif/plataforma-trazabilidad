@@ -82,7 +82,7 @@
                     <form id="form-faltante" class="space-y-4">
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Nombre del Insumo / Componente</label>
-                            <input type="text" id="elemento" required placeholder="Ej. Sensores Ultrasónicos o Placas Raspberry Pi" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 text-sm">
+                            <input type="text" id="elemento" required placeholder="Ej. Placas Raspberry Pi" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 text-sm">
                         </div>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1 font-medium">Cantidad Requerida</label>
@@ -120,7 +120,7 @@
         </div>
 
         <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl">
-            <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">📜 Bitácora de Auditoría y Logs (Cumplimiento de Seguridad)</h2>
+            <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">📜 Bitácora de Auditoría (Cumplimiento de Seguridad)</h2>
             <div class="bg-gray-950 p-4 rounded-lg font-mono text-xs text-green-400 border border-gray-800 max-h-[180px] overflow-y-auto space-y-2" id="logs-auditoria"></div>
         </div>
 
@@ -133,26 +133,20 @@
     <script>
         const API_URL = 'https://lab-backend-k7c0.onrender.com/api';
 
-        // Despertador automático
-        fetch('https://lab-backend-k7c0.onrender.com/')
-            .then(() => console.log('⏰ Servidor alertado.'))
-            .catch(err => console.error(err));
-
         document.addEventListener('DOMContentLoaded', () => {
             obtenerActivos();
             obtenerLogs();
             obtenerFaltantes();
         });
 
-        // CONSULTAR ACTIVOS EXISTENTES
         async function obtenerActivos() {
             try {
                 const res = await fetch(`${API_URL}/activos`);
                 const activos = await res.json();
                 const tbody = document.getElementById('tabla-activos');
                 tbody.innerHTML = '';
-                if(activos.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No hay activos registrados en el inventario.</td></tr>`;
+                if(!activos || activos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No hay activos registrados.</td></tr>`;
                     return;
                 }
                 activos.forEach(activo => {
@@ -172,7 +166,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // ENVIAR POST: ALTA DE ACTIVO
         document.getElementById('form-activo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const datos = {
@@ -192,32 +185,28 @@
                     await obtenerActivos();
                     await obtenerLogs();
                 } else { alert("Error al registrar el activo. Revisa campos o códigos duplicados."); }
-            } catch (err) { alert("Conexión demorada, reintente en un momento."); }
+            } catch (err) { alert("Error de comunicación."); }
         });
 
-        // ENVIAR DELETE: BAJA DE ACTIVO
         async function darDeBaja(codigo) {
-            if(!confirm(`¿Confirmas que deseas retirar y dar de BAJA el activo con código [ ${codigo} ]?`)) return;
+            if(!confirm(`¿Deseas dar de BAJA el activo [ ${codigo} ]?`)) return;
             try {
-                const res = await fetch(`${API_URL}/activos/${codigo}`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`${API_URL}/activos/${codigo}`, { method: 'DELETE' });
                 if (res.ok) {
                     await obtenerActivos();
                     await obtenerLogs();
-                } else { alert("No se pudo dar de baja el recurso."); }
+                } else { alert("No se pudo procesar la baja."); }
             } catch (err) { console.error(err); }
         }
 
-        // CONSULTAR COMPONENTES FALTANTES
         async function obtenerFaltantes() {
             try {
                 const res = await fetch(`${API_URL}/faltantes`);
                 const faltantes = await res.json();
                 const tbody = document.getElementById('tabla-faltantes');
                 tbody.innerHTML = '';
-                if(faltantes.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No hay necesidades pendientes registradas. Todo en orden.</td></tr>`;
+                if(!faltantes || faltantes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500 italic">No hay necesidades registradas.</td></tr>`;
                     return;
                 }
                 faltantes.forEach(f => {
@@ -241,7 +230,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // ENVIAR POST: COMPONENTE FALTANTE
         document.getElementById('form-faltante').addEventListener('submit', async (e) => {
             e.preventDefault();
             const datos = {
@@ -259,10 +247,9 @@
                     document.getElementById('form-faltante').reset();
                     await obtenerFaltantes();
                 } else { alert("Error al registrar el elemento faltante."); }
-            } catch (err) { alert("Error de comunicación con el servidor lógico."); }
+            } catch (err) { alert("Error de comunicación."); }
         });
 
-        // CONSULTAR BITÁCORA DE LOGS
         async function obtenerLogs() {
             try {
                 const res = await fetch(`${API_URL}/bitacora`);
@@ -280,8 +267,7 @@
                             <span class="text-gray-500">[${fechaLegible}]</span> 
                             <span class="${colorAccion}">${log.accion}</span>: 
                             <span class="text-gray-300">${log.detalles}</span>
-                        </p>
-                    `;
+                        </p>`;
                 });
             } catch (err) { console.error(err); }
         }
