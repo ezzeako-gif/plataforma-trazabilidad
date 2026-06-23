@@ -45,33 +45,28 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="form-activo" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
                     <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-1.5">📥 Registrar Elemento</h3>
-                    
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 font-medium">NOMBRE DEL DISPOSITIVO / ACTIVO</label>
-                        <input type="text" id="act-nombre" placeholder="Ej. Servidor Dell PowerEdge" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-teal-500 transition-colors">
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">NOMBRE DEL DISPOSITIVO</label>
+                        <input type="text" id="act-nombre" placeholder="Ej. Servidor Dell PowerEdge" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 text-sm">
                     </div>
-
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 font-medium">CÓDIGO ÚNICO DE INVENTARIO</label>
-                        <input type="text" id="act-codigo" placeholder="Ej. INF-SRV-02" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-teal-500 transition-colors">
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">CÓDIGO ÚNICO</label>
+                        <input type="text" id="act-codigo" placeholder="Ej. INF-SRV-02" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 text-sm">
                     </div>
-
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 font-medium">CATEGORÍA DEL RECURSO</label>
-                        <select id="act-categoria" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 transition-colors">
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">CATEGORÍA</label>
+                        <select id="act-categoria" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 text-sm">
                             <option value="Servidores">Servidores</option>
                             <option value="Redes (Routers/Switches)">Redes (Routers/Switches)</option>
                             <option value="Estaciones de Trabajo">Estaciones de Trabajo</option>
                             <option value="Periféricos e Infraestructura">Periféricos e Infraestructura</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 font-medium">UBICACIÓN FÍSICA (LABORATORIO)</label>
-                        <input type="text" id="act-ubicacion" placeholder="Ej. Laboratorio de Redes y Ciberseguridad" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-teal-500 transition-colors">
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">UBICACIÓN FÍSICA</label>
+                        <input type="text" id="act-ubicacion" placeholder="Ej. Laboratorio de Redes" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 text-sm">
                     </div>
-
-                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 text-gray-900 font-bold py-2.5 px-4 rounded text-sm transition-all shadow-lg shadow-teal-900/20 cursor-pointer">
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 text-gray-900 font-bold py-2.5 px-4 rounded text-sm transition-all cursor-pointer">
                         Desplegar Alta de Activo
                     </button>
                 </form>
@@ -101,28 +96,24 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="form-faltante" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
-                    <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-1.5">🔍 Solicitar Elemento Inexistente</h3>
-                    
+                    <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-1.5">🔍 Solicitar Insumo</h3>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1 font-medium">NOMBRE DEL INSUMO / COMPONENTE</label>
-                        <input type="text" id="fal-elemento" placeholder="Ej. Cable UTP Categoría 6A" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors">
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">NOMBRE DEL COMPONENTE</label>
+                        <input type="text" id="fal-elemento" placeholder="Ej. Cable UTP Cat 6A" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500 text-sm">
                     </div>
-
                     <div>
                         <label class="block text-xs text-gray-400 mb-1 font-medium">CANTIDAD REQUERIDA</label>
-                        <input type="number" id="fal-cantidad" placeholder="Ej. 5" min="1" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors">
+                        <input type="number" id="fal-cantidad" placeholder="Ej. 5" min="1" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500 text-sm">
                     </div>
-
                     <div>
                         <label class="block text-xs text-gray-400 mb-1 font-medium">NIVEL DE PRIORIDAD</label>
-                        <select id="fal-prioridad" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500 transition-colors">
+                        <select id="fal-prioridad" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500 text-sm">
                             <option value="Baja">🟢 Baja (Stock de Reserva)</option>
                             <option value="Media">🟡 Media (Necesidad de Aula)</option>
                             <option value="Alta">🔴 Alta (Bloqueo Crítico)</option>
                         </select>
                     </div>
-
-                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 px-4 rounded text-sm transition-all shadow-lg shadow-purple-900/20 cursor-pointer">
+                    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 px-4 rounded text-sm transition-all cursor-pointer">
                         Registrar Faltante
                     </button>
                 </form>
@@ -144,44 +135,85 @@
             </div>
         </section>
 
+        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
+            <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
+                <span class="text-orange-400 text-lg">⚠️</span>
+                <h2 class="text-base font-semibold text-orange-400 uppercase tracking-wider">Control de Sistemas Dañados y Mantenimiento</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <form id="form-danado" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
+                    <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-1.5">🚨 Reportar Incidencia / Falla</h3>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">EQUIPO DAÑADO</label>
+                        <input type="text" id="dan-nombre" placeholder="Ej. Switch Cisco 2960" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">CÓDIGO DE IDENTIFICACIÓN</label>
+                        <input type="text" id="dan-codigo" placeholder="Ej. INF-SW-09" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-medium">DESCRIPCIÓN DEL DAÑO / SÍNTOMA</label>
+                        <textarea id="dan-reporte" rows="2" placeholder="Ej. Puerto 1-5 quemados por sobrevoltaje." required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500 text-sm"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-orange-650 hover:bg-orange-550 text-white font-bold py-2.5 px-4 rounded text-sm transition-all cursor-pointer">
+                        Registrar en Mantenimiento
+                    </button>
+                </form>
+
+                <div class="lg:col-span-2 overflow-x-auto bg-gray-900/30 border border-gray-800/60 rounded-lg">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900/80 text-gray-400 uppercase text-xs tracking-wider">
+                                <th class="p-3 border-b border-gray-700">Código</th>
+                                <th class="p-3 border-b border-gray-700">Dispositivo</th>
+                                <th class="p-3 border-b border-gray-700">Diagnóstico Técnico</th>
+                                <th class="p-3 border-b border-gray-700 text-center">Solución</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-danados" class="divide-y divide-gray-800/40"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-4 backdrop-blur-sm">
             <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
                 <span class="text-emerald-400 text-lg">📑</span>
                 <h2 class="text-base font-semibold text-emerald-400 uppercase tracking-wider">Bitácora de Auditoría (Cumplimiento de Seguridad)</h2>
             </div>
-            <div class="bg-gray-950 rounded-lg p-4 font-mono text-xs border border-gray-850 h-64 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-gray-800 text-emerald-500/90" id="contenedor-logs"></div>
+            <div class="bg-gray-950 rounded-lg p-4 font-mono text-xs border border-gray-850 h-64 overflow-y-auto space-y-2 text-emerald-500/90" id="contenedor-logs"></div>
         </section>
 
     </main>
 
     <div id="modal-confirmar-baja" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gray-850 border border-gray-800 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl transform scale-95 transition-all">
+        <div class="bg-gray-850 border border-gray-800 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl">
             <div class="flex items-center space-x-3 text-red-400">
                 <span class="text-2xl">⚠️</span>
                 <h3 class="text-base font-bold text-white">¿Confirmar remoción física?</h3>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">Esta acción dará de baja y retirará del inventario el activo seleccionado de forma permanente del servidor.</p>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="cerrarModalBaja()" class="px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs transition-colors cursor-pointer font-medium">Cancelar</button>
-                <button id="btn-confirmar-baja-ejecutar" class="px-3 py-1.5 rounded bg-red-600 hover:bg-red-500 text-white text-xs transition-colors cursor-pointer font-bold">Dar de Baja</button>
+            <p class="text-xs text-gray-400">Esta acción retirará el activo de forma permanente del servidor.</p>
+            <div class="flex justify-end space-x-2">
+                <button onclick="cerrarModalBaja()" class="px-3 py-1.5 rounded bg-gray-800 text-gray-300 text-xs font-medium cursor-pointer">Cancelar</button>
+                <button id="btn-confirmar-baja-ejecutar" class="px-3 py-1.5 rounded bg-red-600 text-white text-xs font-bold cursor-pointer">Dar de Baja</button>
             </div>
         </div>
     </div>
 
     <div id="modal-surtir" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gray-850 border border-gray-800 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl transform scale-95 transition-all">
+        <div class="bg-gray-850 border border-gray-800 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl">
             <div class="flex items-center space-x-3 text-purple-400">
                 <span class="text-2xl">📥</span>
                 <h3 class="text-base font-bold text-white">Ingresar Unidades al Stock</h3>
             </div>
             <div>
                 <p id="surtir-descripcion" class="text-xs text-gray-400 mb-3"></p>
-                <label class="block text-[10px] tracking-wider text-gray-500 mb-1 font-bold uppercase">CANTIDAD A SUMAR</label>
-                <input type="number" id="surtir-input-cantidad" min="1" placeholder="Ej. 2" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500 transition-colors">
+                <input type="number" id="surtir-input-cantidad" min="1" placeholder="Ej. 2" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500">
             </div>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="cerrarModalSurtir()" class="px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs transition-colors cursor-pointer font-medium">Cancelar</button>
-                <button id="btn-confirmar-surtir-ejecutar" class="px-3 py-1.5 rounded bg-purple-600 hover:bg-purple-500 text-white text-xs transition-colors cursor-pointer font-bold">Procesar Entrada</button>
+            <div class="flex justify-end space-x-2">
+                <button onclick="cerrarModalSurtir()" class="px-3 py-1.5 rounded bg-gray-800 text-gray-300 text-xs font-medium cursor-pointer">Cancelar</button>
+                <button id="btn-confirmar-surtir-ejecutar" class="px-3 py-1.5 rounded bg-purple-600 text-white text-xs font-bold cursor-pointer">Procesar Entrada</button>
             </div>
         </div>
     </div>
@@ -193,267 +225,147 @@
 
     <script>
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
-        
-        // Variables globales para rastrear el estado en memoria de los modales
         let idActivoSeleccionado = null;
         let idFaltanteSeleccionado = null;
-        let cantidadFaltanteActual = 0;
 
-        // --- MANEJO DE ALERTAS MODERNAS ---
         function mostrarAlerta(titulo, mensaje, tipo = 'success') {
             const alertBox = document.getElementById('custom-alert');
             const icon = document.getElementById('alert-icon');
             const titleEl = document.getElementById('alert-title');
             const msgEl = document.getElementById('alert-message');
-
-            titleEl.textContent = titulo;
-            msgEl.textContent = mensaje;
+            titleEl.textContent = titulo; msgEl.textContent = mensaje;
 
             if(tipo === 'success') {
-                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-teal-500 p-4 rounded shadow-2xl transition-all duration-300 flex items-start space-x-3";
+                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-teal-500 p-4 rounded shadow-2xl flex items-start space-x-3";
                 icon.textContent = "✅";
             } else {
-                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-red-500 p-4 rounded shadow-2xl transition-all duration-300 flex items-start space-x-3";
+                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-red-500 p-4 rounded shadow-2xl flex items-start space-x-3";
                 icon.textContent = "❌";
             }
-
-            alertBox.classList.remove('hidden');
-            setTimeout(() => {
-                alertBox.classList.remove('translate-y-2', 'opacity-0');
-            }, 50);
-
-            // Cierre automático tras 4 segundos
+            alertBox.classList.remove('hidden'); alertBox.classList.remove('opacity-0');
             setTimeout(cerrarAlerta, 4000);
         }
+        function cerrarAlerta() { document.getElementById('custom-alert').classList.add('hidden'); }
 
-        function cerrarAlerta() {
-            const alertBox = document.getElementById('custom-alert');
-            alertBox.classList.add('translate-y-2', 'opacity-0');
-            setTimeout(() => { alertBox.classList.add('hidden'); }, 300);
-        }
-
-        // --- MANEJO DE MODALES ---
-        function abrirModalBaja(id) {
-            idActivoSeleccionado = id;
-            const modal = document.getElementById('modal-confirmar-baja');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.firstElementChild.classList.remove('scale-95'), 10);
-        }
-        function cerrarModalBaja() {
-            const modal = document.getElementById('modal-confirmar-baja');
-            modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 150);
-            idActivoSeleccionado = null;
-        }
-
-        function abrirModalSurtir(id, elemento, cantidadActual) {
+        function abrirModalBaja(id) { idActivoSeleccionado = id; document.getElementById('modal-confirmar-baja').classList.remove('hidden'); }
+        function cerrarModalBaja() { document.getElementById('modal-confirmar-baja').classList.add('hidden'); }
+        function abrirModalSurtir(id, elemento, cantidad) {
             idFaltanteSeleccionado = id;
-            cantidadFaltanteActual = cantidadActual;
-            document.getElementById('surtir-descripcion').innerHTML = `¿Cuántas unidades de <strong class="text-purple-400 font-semibold">${elemento}</strong> vas a añadir? Requeridas actualmente: <strong class="text-white">${cantidadActual}</strong>.`;
-            document.getElementById('surtir-input-cantidad').value = '';
-            
-            const modal = document.getElementById('modal-surtir');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.firstElementChild.classList.remove('scale-95'), 10);
+            document.getElementById('surtir-descripcion').innerHTML = `Unidades de <strong class="text-purple-400">${elemento}</strong> a ingresar. Requeridas: <strong>${cantidad}</strong>.<br><span class="text-[10px] text-amber-400">💡 Al surtir, se crearán automáticamente en el módulo de activos.</span>`;
+            document.getElementById('modal-surtir').classList.remove('hidden');
         }
-        function cerrarModalSurtir() {
-            const modal = document.getElementById('modal-surtir');
-            modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 150);
-            idFaltanteSeleccionado = null;
-        }
+        function cerrarModalSurtir() { document.getElementById('modal-surtir').classList.add('hidden'); }
 
-        // --- CONFIGURACIÓN DE ESCUCHAS DE CONFIRMACIÓN ---
+        // Acciones de Modales
         document.getElementById('btn-confirmar-baja-ejecutar').addEventListener('click', async () => {
             if(!idActivoSeleccionado) return;
-            try {
-                const res = await fetch(`${API_URL}/activos/${idActivoSeleccionado}`, { method: 'DELETE' });
-                if(res.ok) {
-                    cerrarModalBaja();
-                    mostrarAlerta("Activo Removido", "El componente se eliminó del servidor físico con éxito.", "success");
-                    await obtenerActivos();
-                    await obtenerLogs();
-                } else {
-                    mostrarAlerta("Error", "No se pudo completar la baja en Render.", "error");
-                }
-            } catch (err) { console.error(err); }
+            const res = await fetch(`${API_URL}/activos/${idActivoSeleccionado}`, { method: 'DELETE' });
+            if(res.ok) { cerrarModalBaja(); mostrarAlerta("Activo de Baja", "Eliminado del servidor.", "success"); actualizarTodo(); }
         });
 
         document.getElementById('btn-confirmar-surtir-ejecutar').addEventListener('click', async () => {
-            const inputVal = document.getElementById('surtir-input-cantidad').value;
-            const unidades = parseInt(inputVal);
+            const unidades = parseInt(document.getElementById('surtir-input-cantidad').value);
+            if (isNaN(unidades) || unidades <= 0) return;
             
-            if (isNaN(unidades) || unidades <= 0) {
-                alert("Por favor, ingresa una cantidad numérica válida y mayor a 0.");
+            const res = await fetch(`${API_URL}/faltantes/${idFaltanteSeleccionado}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cantidadAsurtir: unidades })
+            });
+            if(res.ok) { cerrarModalSurtir(); mostrarAlerta("Stock Surtido", "Unidades migradas al Inventario de Activos con éxito.", "success"); actualizarTodo(); }
+            else { const e = await res.json(); mostrarAlerta("Error", e.error, "error"); }
+        });
+
+        // --- MANEJO DE DATOS ---
+        async function obtenerActivos() {
+            const res = await fetch(`${API_URL}/activos`);
+            const datos = await res.json();
+            const tbody = document.getElementById('tabla-activos');
+            tbody.innerHTML = '';
+            datos.forEach(a => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono font-bold text-teal-400">${a.codigo}</td>
+                        <td class="p-3 text-gray-200">${a.nombre}</td>
+                        <td class="p-3 text-gray-400 text-xs">${a.categoria}</td>
+                        <td class="p-3 text-gray-400 text-xs">${a.ubicacion}</td>
+                        <td class="p-3 text-center"><button onclick="abrirModalBaja(${a.id})" class="bg-red-950/40 text-red-400 border border-red-900/50 text-xs px-2 py-1 rounded cursor-pointer">🔴 Baja</button></td>
+                    </tr>`;
+            });
+        }
+
+        async function obtenerFaltantes() {
+            const res = await fetch(`${API_URL}/faltantes`);
+            const datos = await res.json();
+            const tbody = document.getElementById('tabla-faltantes');
+            tbody.innerHTML = '';
+            datos.forEach(f => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-purple-400">#${f.id}</td>
+                        <td class="p-3 text-gray-200">${f.elemento}</td>
+                        <td class="p-3 text-center text-gray-400 font-bold">${f.cantidad}</td>
+                        <td class="p-3 text-center"><span class="text-xs px-2 py-0.5 rounded border border-purple-800 bg-purple-900/20 text-purple-400">${f.prioridad}</span></td>
+                        <td class="p-3 text-center"><button onclick="abrirModalSurtir(${f.id}, '${f.elemento}', ${f.cantidad})" class="bg-purple-900/40 text-purple-300 border border-purple-700/50 text-xs px-2 py-1 rounded cursor-pointer">📥 Surtir</button></td>
+                    </tr>`;
+            });
+        }
+
+        // --- LOGICA REPORTE DE DAÑADOS ---
+        async function obtenerDanados() {
+            const res = await fetch(`${API_URL}/danados`);
+            const datos = await res.json();
+            const tbody = document.getElementById('tabla-danados');
+            tbody.innerHTML = '';
+            if(datos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-600 italic">No hay sistemas reportados con fallas.</td></tr>`;
                 return;
             }
-
-            try {
-                const res = await fetch(`${API_URL}/faltantes/${idFaltanteSeleccionado}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cantidadAsurtir: unidades })
-                });
-                
-                const respuesta = await res.json();
-                if (res.ok) {
-                    cerrarModalSurtir();
-                    mostrarAlerta("Inventario Actualizado", respuesta.mensaje, "success");
-                    await obtenerFaltantes();
-                    await obtenerLogs();
-                } else {
-                    mostrarAlerta("Operación Inválida", respuesta.error || "Error al actualizar.", "error");
-                }
-            } catch (err) { console.error(err); }
-        });
-
-
-        // --- MÓDULO 1: ACTIVOS ---
-        async function obtenerActivos() {
-            try {
-                const res = await fetch(`${API_URL}/activos`);
-                const activos = await res.json();
-                const tbody = document.getElementById('tabla-activos');
-                tbody.innerHTML = '';
-                if(!activos || activos.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No hay activos registrados en el servidor.</td></tr>`;
-                    return;
-                }
-                activos.forEach(a => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-700/30 transition-colors">
-                            <td class="p-3 font-mono font-bold text-teal-400">${a.codigo}</td>
-                            <td class="p-3 text-gray-200 font-medium">${a.nombre}</td>
-                            <td class="p-3 text-gray-400 text-xs">${a.categoria}</td>
-                            <td class="p-3 text-gray-400 text-xs">${a.ubicacion}</td>
-                            <td class="p-3 text-center">
-                                <button type="button" onclick="abrirModalBaja(${a.id})" class="bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 text-xs px-2 py-1 rounded transition-colors cursor-pointer font-medium">
-                                    🔴 Dar Baja
-                                </button>
-                            </td>
-                        </tr>`;
-                });
-            } catch (err) { console.error(err); }
+            datos.forEach(d => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono font-bold text-orange-400">${d.codigo}</td>
+                        <td class="p-3 text-gray-200 font-medium">${d.nombre}</td>
+                        <td class="p-3 text-gray-400 text-xs">${d.reporte}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="archivarFalla(${d.id})" class="bg-orange-950/40 text-orange-400 border border-orange-900/50 text-xs px-2 py-1 rounded cursor-pointer">⚙️ Reparado / Archivar</button>
+                        </td>
+                    </tr>`;
+            });
         }
 
-        document.getElementById('form-activo').addEventListener('submit', async (e) => {
+        document.getElementById('form-danado').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const activo = {
-                nombre: document.getElementById('act-nombre').value,
-                codigo: document.getElementById('act-codigo').value,
-                categoria: document.getElementById('act-categoria').value,
-                ubicacion: document.getElementById('act-ubicacion').value
+            const payload = {
+                nombre: document.getElementById('dan-nombre').value,
+                codigo: document.getElementById('dan-codigo').value,
+                reporte: document.getElementById('dan-reporte').value
             };
-
-            try {
-                const res = await fetch(`${API_URL}/activos`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(activo)
-                });
-                if(res.ok) {
-                    document.getElementById('form-activo').reset();
-                    mostrarAlerta("Ingreso Exitoso", "El activo se integró al sistema de auditoría.", "success");
-                    await obtenerActivos();
-                    await obtenerLogs();
-                } else {
-                    const errData = await res.json();
-                    mostrarAlerta("Fallo de Validación", errData.error || "Verifica los datos del servidor.", "error");
-                }
-            } catch (err) { console.error(err); }
+            const res = await fetch(`${API_URL}/danados`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if(res.ok) { document.getElementById('form-danado').reset(); mostrarAlerta("Incidencia Registrada", "El fallo fue añadido a la cola de mantenimiento.", "success"); actualizarTodo(); }
         });
 
-
-        // --- MÓDULO 2: REQUERIMIENTOS ---
-        async function obtenerFaltantes() {
-            try {
-                const res = await fetch(`${API_URL}/faltantes`);
-                const faltantes = await res.json();
-                const tbody = document.getElementById('tabla-faltantes');
-                tbody.innerHTML = '';
-                if(!faltantes || faltantes.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No hay necesidades registradas.</td></tr>`;
-                    return;
-                }
-                faltantes.forEach(f => {
-                    let badgeColor = "bg-gray-900 text-gray-400 border-gray-700";
-                    if(f.prioridad === 'Alta') badgeColor = "bg-red-900/40 text-red-400 border-red-800/60";
-                    if(f.prioridad === 'Media') badgeColor = "bg-amber-900/40 text-amber-400 border-amber-800/60";
-                    if(f.prioridad === 'Baja') badgeColor = "bg-green-900/40 text-green-400 border-green-800/60";
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-700/30 transition-colors">
-                            <td class="p-3 font-mono text-purple-400">#${f.id}</td>
-                            <td class="p-3 font-medium text-gray-200">${f.elemento}</td>
-                            <td class="p-3 text-center text-gray-400 font-bold">${f.cantidad}</td>
-                            <td class="p-3 text-center">
-                                <span class="text-xs px-2.5 py-0.5 rounded-full border ${badgeColor}">
-                                    ${f.prioridad}
-                                </span>
-                            </td>
-                            <td class="p-3 text-center">
-                                <button type="button" onclick="abrirModalSurtir(${f.id}, '${f.elemento}', ${f.cantidad})" class="bg-purple-900/40 hover:bg-purple-800/60 text-purple-300 border border-purple-700/50 text-xs px-2 py-1 rounded transition-all cursor-pointer font-semibold">
-                                    📥 Surtir
-                                </button>
-                            </td>
-                        </tr>`;
-                });
-            } catch (err) { console.error(err); }
+        async function archivarFalla(id) {
+            const res = await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE' });
+            if(res.ok) { mostrarAlerta("Reporte Solucionado", "El equipo ha sido reparado o archivado.", "success"); actualizarTodo(); }
         }
 
-        document.getElementById('form-faltante').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const faltante = {
-                elemento: document.getElementById('fal-elemento').value,
-                cantidad: parseInt(document.getElementById('fal-cantidad').value),
-                prioridad: document.getElementById('fal-prioridad').value
-            };
-
-            try {
-                const res = await fetch(`${API_URL}/faltantes`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(faltante)
-                });
-                if(res.ok) {
-                    document.getElementById('form-faltante').reset();
-                    mostrarAlerta("Requerimiento Creado", "Se guardó el material faltante en la base de datos.", "success");
-                    await obtenerFaltantes();
-                } else {
-                    mostrarAlerta("Error", "No se pudo registrar la solicitud.", "error");
-                }
-            } catch (err) { console.error(err); }
-        });
-
-
-        // --- MÓDULO 3: BITÁCORA ---
         async function obtenerLogs() {
-            try {
-                const res = await fetch(`${API_URL}/bitacora`);
-                const logs = await res.json();
-                const contenedor = document.getElementById('contenedor-logs');
-                contenedor.innerHTML = '';
-                if(!logs || logs.length === 0) {
-                    contenedor.innerHTML = `<p class="text-gray-600 italic">[SISTEMA OPERANDO SIN MOVIMIENTOS RECIENTES]</p>`;
-                    return;
-                }
-                logs.forEach(log => {
-                    const fechaLocal = new Date(log.fecha).toLocaleString();
-                    contenedor.innerHTML += `
-                        <div class="py-1 border-b border-gray-900 flex flex-col md:flex-row md:justify-between text-gray-400">
-                            <span><strong class="text-emerald-400">[${log.accion}]</strong> ${log.detalles}</span>
-                            <span class="text-gray-600 text-[10px] font-sans md:self-center">${fechaLocal}</span>
-                        </div>`;
-                });
-            } catch (err) { console.error(err); }
+            const res = await fetch(`${API_URL}/bitacora`);
+            const datos = await res.json();
+            const contenedor = document.getElementById('contenedor-logs');
+            contenedor.innerHTML = '';
+            datos.forEach(log => {
+                contenedor.innerHTML += `<div class="py-1 border-b border-gray-900 text-gray-400"><strong class="text-emerald-400">[${log.accion}]</strong> ${log.detalles}</div>`;
+            });
         }
 
-        // Ejecución automática al cargar la sesión
-        document.addEventListener('DOMContentLoaded', () => {
-            obtenerActivos();
-            obtenerFaltantes();
-            obtenerLogs();
-        });
+        function actualizarTodo() { obtenerActivos(); obtenerFaltantes(); obtenerDanados(); obtenerLogs(); }
+        document.addEventListener('DOMContentLoaded', actualizarTodo);
     </script>
 </body>
 </html>
