@@ -181,8 +181,7 @@
                                     <th class="px-6 py-4 text-right" id="th-acciones-activos">Acciones de Baja</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                </tbody>
+                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                         </table>
                     </div>
                 </div>
@@ -227,8 +226,7 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-faltantes">Surtir Almacén</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    </tbody>
+                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -270,8 +268,7 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-danados">Archivo</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    </tbody>
+                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -282,8 +279,7 @@
                 <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                     <h2 class="text-md font-bold text-white uppercase tracking-wider">Bitácora de Auditoría en Servidor</h2>
                 </div>
-                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora">
-                    </div>
+                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora"></div>
             </section>
 
         </main>
@@ -292,16 +288,23 @@
     <script>
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
         let seccionActual = 'activos';
-        
-        // ESTRATEGIA DE VOLATILIDAD: Usamos sessionStorage para obligar login al cerrar pestaña o recargar la página
-        let usuarioActual = JSON.parse(sessionStorage.getItem('usuario_trazabilidad')) || null;
         let temporizadorInactividad;
+
+        // INTELIGENCIA DE SEGURIDAD INTERNA:
+        // Interceptamos si el evento de navegación actual es una recarga (F5 / Recargar)
+        if (window.performance && window.performance.getEntriesByType("navigation")[0] && window.performance.getEntriesByType("navigation")[0].type === "reload") {
+            // Si se recargó la página, limpiamos la sesión inmediatamente de la memoria volátil antes de que lea la variable
+            sessionStorage.removeItem('usuario_trazabilidad');
+        }
+
+        // Leer el estado de la sesión volátil
+        let usuarioActual = JSON.parse(sessionStorage.getItem('usuario_trazabilidad')) || null;
 
         function obtenerCabeceras() {
             return { 'Content-Type': 'application/json' };
         }
 
-        // Al iniciar la página, evaluamos el estado de la sesión volátil
+        // Evaluación de arranque limpio al cargar el DOM
         document.addEventListener('DOMContentLoaded', () => {
             if (usuarioActual) { 
                 inicializarPanel(); 
@@ -312,13 +315,13 @@
 
         // ================= SISTEMA INTEGRADO DE CONTROL DE INACTIVIDAD (2 MINUTOS) =================
         function iniciarControlInactividad() {
-            // Escuchadores de eventos globales nativos del navegador
+            // Escuchadores de interacción para resetear el temporizador de inactividad
             window.onload = reiniciarTemporizador;
             document.onmousemove = reiniciarTemporizador;
             document.onkeypress = reiniciarTemporizador;
             document.onclick = reiniciarTemporizador;
             document.onscroll = reiniciarTemporizador;
-            reiniciarTemporizador(); // Ejecución inicial limpia
+            reiniciarTemporizador(); 
         }
 
         function detenerControlInactividad() {
@@ -363,7 +366,7 @@
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
 
-                // Guardar en la sesión de la pestaña actual únicamente
+                // Guardar de forma estricta en la sesión de la pestaña actual únicamente
                 sessionStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
                 usuarioActual = d;
                 
@@ -391,18 +394,18 @@
                 document.getElementById('th-acciones-danados').classList.remove('hidden');
             }
             actualizarTodo();
-            iniciarControlInactividad(); // Activación del guardián de inactividad
+            iniciarControlInactividad(); // Activación del guardián del tiempo
         }
 
         function cerrarSesion() {
             sessionStorage.removeItem('usuario_trazabilidad');
             usuarioActual = null;
-            detenerControlInactividad(); // Desactivar timers para evitar bucles
+            detenerControlInactividad(); // Desactivar listeners para mitigar fugas de memoria
             
             document.getElementById('seccion-dashboard').classList.add('hidden');
             document.getElementById('seccion-login').classList.remove('hidden');
             
-            // Limpieza del formulario de login
+            // Vaciar inputs del login
             document.getElementById('log-usuario').value = '';
             document.getElementById('log-contrasena').value = '';
         }
@@ -618,7 +621,7 @@
             } catch(e) { console.error(e); }
         }
 
-        // === DISPARADOR INTELIGENTE DE EXPORTACIÓN A PDF ===
+        // === DISPARADOR DE EXPORTACIÓN A PDF ===
         function imprimirReporteActual() {
             const titulos = {
                 'activos': 'Reporte del Inventario de Activos de Red',
@@ -635,6 +638,7 @@
             document.title = tituloOriginal;
         }
 
+        // Alertas estilizadas con SweetAlert2
         function mostrarAlerta(titulo, mensaje, icono = 'success') {
             Swal.fire({
                 title: titulo,
