@@ -5,350 +5,472 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Trazabilidad e Inventario TI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen selection:bg-teal-500 selection:text-gray-900">
 
-    <main id="contenido-plataforma" class="max-w-7xl mx-auto p-6 space-y-8">
-        
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                    🛡️ Plataforma de Trazabilidad Tecnológica
-                </h1>
-                <p class="text-xs text-gray-400">Laboratorio de Redes e Infraestructura de Servidores</p>
+    <!-- PANTALLA DE LOGO / LOGIN OBLIGATORIO -->
+    <div id="pantalla-login" class="fixed inset-0 z-50 bg-gray-950 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 max-w-sm w-full rounded-2xl p-6 space-y-6 shadow-2xl backdrop-blur-md">
+            <div class="text-center space-y-2">
+                <span class="text-4xl">🔐</span>
+                <h2 class="text-xl font-bold text-white tracking-tight">Control de Acceso TI</h2>
+                <p class="text-xs text-gray-400">Ingresa tus credenciales del Laboratorio de Infraestructura</p>
             </div>
-            <div class="flex items-center gap-3 self-end sm:self-auto">
-                <button onclick="exportarPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-gray-900 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-lg">
-                    📊 Exportar Reporte (PDF)
+            <form id="form-login" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-mono">USUARIO</label>
+                    <input type="text" id="log-usuario" placeholder="Ej. admin o user" required class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-mono">CONTRASEÑA</label>
+                    <input type="password" id="log-contrasena" placeholder="••••••••" required class="w-full bg-gray-950 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500 font-mono">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-gray-900 font-bold py-2.5 rounded-lg text-sm transition-all cursor-pointer shadow-lg shadow-teal-900/20">
+                    Autenticar Oficial de Seguridad
                 </button>
-                <span class="text-xs px-2 py-1 rounded bg-teal-950/50 text-teal-400 border border-teal-900 font-mono">Entorno: Nube</span>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL DE LA PLATAFORMA (Protegido por Defecto) -->
+    <div id="contenido-plataforma" class="hidden">
+        <header class="border-b border-gray-800 bg-gray-900/80 backdrop-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-teal-500/10 p-2 rounded-lg border border-teal-500/30">
+                    <span class="text-xl text-teal-400 font-mono">🛡️</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white">Plataforma de Trazabilidad Tecnológica</h1>
+                    <p class="text-xs text-gray-400">Laboratorio de Redes e Infraestructura de Servidores</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="badge-rol" class="text-xs border px-3 py-1 rounded-full font-mono uppercase"></span>
+                <button onclick="cerrarSesion()" class="text-xs bg-red-950/45 text-red-400 border border-red-900/40 px-3 py-1 rounded-full hover:bg-red-900 hover:text-white transition-all cursor-pointer font-mono">
+                    Salir 🚪
+                </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">TOTAL ACTIVOS</span>
-                <span id="dash-total-activos" class="text-3xl font-bold text-teal-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">EN MANTENIMIENTO</span>
-                <span id="dash-total-danados" class="text-3xl font-bold text-orange-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">REQUERIMIENTOS CRÍTICOS</span>
-                <span id="dash-total-criticos" class="text-3xl font-bold text-purple-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col items-center justify-center backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono mb-2">MÉTRICAS POR CATEGORÍA</span>
-                <div class="w-full max-w-[100px] h-[100px]">
-                    <canvas id="chartCategorias"></canvas>
+        <main class="max-w-7xl mx-auto p-6 space-y-8">
+
+            <!-- ALERTA FLOTANTE PERSONALIZADA (Modales Amigables) -->
+            <div id="custom-alert" class="hidden fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 p-4 rounded shadow-2xl transition-all duration-300 flex items-start space-x-3">
+                <span id="alert-icon" class="text-lg"></span>
+                <div class="flex-1">
+                    <h4 id="alert-title" class="text-sm font-bold text-white"></h4>
+                    <p id="alert-message" class="text-xs text-gray-400 mt-0.5"></p>
                 </div>
+                <button onclick="cerrarAlerta()" class="text-gray-500 hover:text-gray-300 text-sm cursor-pointer">&times;</button>
+            </div>
+
+            <!-- MÓDULO 1: ACTIVOS -->
+            <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
+                <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
+                    <span class="text-teal-400 text-lg">🖥️</span>
+                    <h2 class="text-base font-semibold text-teal-400 uppercase tracking-wider">Módulo de Activos Físicos TI</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <form id="form-activo" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
+                        <h3 class="text-sm font-semibold text-gray-300">📥 Registrar Elemento</h3>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL DISPOSITIVO</label>
+                            <input type="text" id="act-nombre" placeholder="Ej. Servidor Dell PowerEdge" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">CÓDIGO ÚNICO</label>
+                            <input type="text" id="act-codigo" placeholder="Ej. INF-SRV-02" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">CATEGORÍA</label>
+                            <select id="act-categoria" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500">
+                                <option value="Servidores">Servidores</option>
+                                <option value="Redes (Routers/Switches)">Redes (Routers/Switches)</option>
+                                <option value="Estaciones de Trabajo">Estaciones de Trabajo</option>
+                                <option value="Periféricos e Infraestructura">Periféricos e Infraestructura</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">UBICACIÓN FÍSICA</label>
+                            <input type="text" id="act-ubicacion" placeholder="Ej. Laboratorio de Redes" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-teal-500">
+                        </div>
+                        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 text-gray-900 font-bold py-2.5 rounded text-sm transition-all cursor-pointer">Desplegar Alta de Activo</button>
+                    </form>
+                    <div class="lg:col-span-2 overflow-x-auto bg-gray-900/30 border border-gray-800/60 rounded-lg">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-900/80 text-gray-400 uppercase text-xs">
+                                    <th class="p-3 border-b border-gray-700">Código</th>
+                                    <th class="p-3 border-b border-gray-700">Nombre</th>
+                                    <th class="p-3 border-b border-gray-700">Categoría</th>
+                                    <th class="p-3 border-b border-gray-700">Ubicación</th>
+                                    <th class="p-3 border-b border-gray-700 text-center col-accion">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-activos" class="divide-y divide-gray-800/40"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO 2: REQUERIMIENTOS -->
+            <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
+                <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
+                    <span class="text-purple-400 text-lg">📋</span>
+                    <h2 class="text-base font-semibold text-purple-400 uppercase tracking-wider">Módulo de Requerimientos (Componentes Faltantes)</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <form id="form-faltante" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
+                        <h3 class="text-sm font-semibold text-gray-300">🔍 Solicitar Insumo</h3>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL COMPONENTE</label>
+                            <input type="text" id="fal-elemento" placeholder="Ej. Cable UTP Cat 6A" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">CANTIDAD REQUERIDA</label>
+                            <input type="number" id="fal-cantidad" placeholder="Ej. 5" min="1" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">NIVEL DE PRIORIDAD</label>
+                            <select id="fal-prioridad" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500">
+                                <option value="Baja">🟢 Baja (Stock de Reserva)</option>
+                                <option value="Media">🟡 Media (Necesidad de Aula)</option>
+                                <option value="Alta">🔴 Alta (Bloqueo Crítico)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded text-sm transition-all cursor-pointer">Registrar Faltante</button>
+                    </form>
+                    <div class="lg:col-span-2 overflow-x-auto bg-gray-900/30 border border-gray-800/60 rounded-lg">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-900/80 text-gray-400 uppercase text-xs">
+                                    <th class="p-3 border-b border-gray-700">ID</th>
+                                    <th class="p-3 border-b border-gray-700">Elemento Faltante</th>
+                                    <th class="p-3 border-b border-gray-700 text-center">Cantidad</th>
+                                    <th class="p-3 border-b border-gray-700 text-center">Prioridad</th>
+                                    <th class="p-3 border-b border-gray-700 text-center col-surtir">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-faltantes" class="divide-y divide-gray-800/40"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO 3: DAÑADOS -->
+            <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
+                <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
+                    <span class="text-orange-400 text-lg">⚠️</span>
+                    <h2 class="text-base font-semibold text-orange-400 uppercase tracking-wider">Control de Sistemas Dañados y Mantenimiento</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <form id="form-danado" class="space-y-4 bg-gray-900/50 p-4 rounded-lg border border-gray-800/60">
+                        <h3 class="text-sm font-semibold text-gray-300">🚨 Reportar Incidencia</h3>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">EQUIPO DAÑADO</label>
+                            <input type="text" id="dan-nombre" placeholder="Ej. Switch Cisco" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">CÓDIGO DE ACTIVO</label>
+                            <input type="text" id="dan-codigo" placeholder="Ej. INF-SW-09" required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">DESCRIPCIÓN DE LA FALLA</label>
+                            <textarea id="dan-reporte" rows="2" placeholder="Describa el fallo técnico aquí..." required class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-orange-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-550 text-white font-bold py-2.5 rounded text-sm transition-all cursor-pointer">Registrar en Mantenimiento</button>
+                    </form>
+                    <div class="lg:col-span-2 overflow-x-auto bg-gray-900/30 border border-gray-800/60 rounded-lg">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-900/80 text-gray-400 uppercase text-xs">
+                                    <th class="p-3 border-b border-gray-700">Código</th>
+                                    <th class="p-3 border-b border-gray-700">Dispositivo</th>
+                                    <th class="p-3 border-b border-gray-700">Diagnóstico</th>
+                                    <th class="p-3 border-b border-gray-700 text-center col-reparar">Solución</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-danados" class="divide-y divide-gray-800/40"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BITÁCORA -->
+            <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-4 backdrop-blur-sm">
+                <div class="flex items-center space-x-2 border-b border-gray-800 pb-3">
+                    <span class="text-emerald-400 text-lg">📑</span>
+                    <h2 class="text-base font-semibold text-emerald-400 uppercase tracking-wider">Bitácora de Auditoría (Cumplimiento de Seguridad)</h2>
+                </div>
+                <div class="bg-gray-950 rounded-lg p-4 font-mono text-xs border border-gray-850 h-64 overflow-y-auto space-y-2 text-emerald-500/90" id="contenedor-logs"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL CONFIRMAR BAJA -->
+    <div id="modal-confirmar-baja" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-red-400"><span>⚠️</span><h3 class="text-base font-bold text-white">¿Confirmar remoción física?</h3></div>
+            <p class="text-xs text-gray-400">Esta acción retirará el activo de forma permanente del servidor relacional.</p>
+            <div class="flex justify-end space-x-2">
+                <button onclick="cerrarModalBaja()" class="px-3 py-1.5 rounded bg-gray-700 text-gray-300 text-xs cursor-pointer">Cancelar</button>
+                <button id="btn-confirmar-baja-ejecutar" class="px-3 py-1.5 rounded bg-red-600 text-white text-xs font-bold cursor-pointer">Dar de Baja</button>
             </div>
         </div>
+    </div>
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-teal-400 flex items-center gap-2">🖥️ MÓDULO DE ACTIVOS FÍSICOS TI</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">📥 Registrar Elemento</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL DISPOSITIVO / ACTIVO</label>
-                        <input type="text" id="act-nombre" placeholder="Ej. Servidor Dell PowerEdge" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CÓDIGO ÚNICO DE INVENTARIO</label>
-                        <input type="text" id="act-codigo" placeholder="Ej. INF-SRV-02" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CATEGORÍA DEL RECURSO</label>
-                        <select id="act-categoria" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                            <option value="Servidores">Servidores</option>
-                            <option value="Redes">Redes</option>
-                            <option value="Estaciones">Estaciones</option>
-                            <option value="Periféricos">Periféricos</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">UBICACIÓN FÍSICA (LABORATORIO)</label>
-                        <input type="text" id="act-ubicacion" placeholder="Ej. Laboratorio de Redes" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                    </div>
-                    <button onclick="crearActivo()" class="w-full bg-teal-600 hover:bg-teal-500 text-gray-900 font-bold p-2 rounded text-sm transition-all">Desplegar Alta de Activo</button>
-                </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">CÓDIGO</th>
-                                <th class="p-3">NOMBRE</th>
-                                <th class="p-3">CATEGORÍA</th>
-                                <th class="p-3">UBICACIÓN</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-activos"></tbody>
-                    </table>
-                </div>
+    <!-- MODAL SURTIR -->
+    <div id="modal-surtir" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 max-w-sm w-full rounded-xl p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-purple-400"><span>📥</span><h3 class="text-base font-bold text-white">Ingresar Unidades al Stock</h3></div>
+            <div>
+                <p id="surtir-descripcion" class="text-xs text-gray-400 mb-3"></p>
+                <input type="number" id="surtir-input-cantidad" min="1" placeholder="Cantidad" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500">
             </div>
-        </section>
-
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-purple-400 flex items-center gap-2">📋 MÓDULO DE REQUERIMIENTOS (COMPONENTES FALTANTES)</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">🔍 Solicitar Insumo</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL COMPONENTE</label>
-                        <input type="text" id="fal-elemento" placeholder="Ej. Cable UTP Categoría 6A" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CANTIDAD REQUERIDA</label>
-                        <input type="number" id="fal-cantidad" placeholder="Ej. 5" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NIVEL DE PRIORIDAD</label>
-                        <select id="fal-prioridad" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
-                            <option value="Baja">Baja (Stock de Reserva)</option>
-                            <option value="Media">Media</option>
-                            <option value="Alta">Alta</option>
-                        </select>
-                    </div>
-                    <button onclick="crearFaltante()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded text-sm transition-all">Solicitar Requerimiento</button>
-                </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">ID</th>
-                                <th class="p-3">ELEMENTO FALTANTE</th>
-                                <th class="p-3 text-center">CANTIDAD</th>
-                                <th class="p-3 text-center">PRIORIDAD</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-faltantes"></tbody>
-                    </table>
-                </div>
+            <div class="flex justify-end space-x-2">
+                <button onclick="cerrarModalSurtir()" class="px-3 py-1.5 rounded bg-gray-700 text-gray-300 text-xs cursor-pointer">Cancelar</button>
+                <button id="btn-confirmar-surtir-ejecutar" class="px-3 py-1.5 rounded bg-purple-600 text-white text-xs font-bold cursor-pointer">Procesar Entrada</button>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-orange-400 flex items-center gap-2">⚠️ MÓDULO DE INCIDENCIAS (EQUIPOS DAÑADOS)</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">🚨 Reportar Falla</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CÓDIGO ÚNICO DEL EQUIPO</label>
-                        <input type="text" id="dan-codigo" placeholder="Ej. INF-SRV-02" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL COMPONENTE AFECTADO</label>
-                        <input type="text" id="dan-nombre" placeholder="Ej. Disco Duro SSD" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">DESCRIPCIÓN DEL REPORTE</label>
-                        <textarea id="dan-reporte" placeholder="Ej. El sector de arranque falló tras apagón" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500 h-20"></textarea>
-                    </div>
-                    <button onclick="crearDanado()" class="w-full bg-orange-600 hover:bg-orange-500 text-gray-900 font-bold p-2 rounded text-sm transition-all">Levantar Reporte</button>
-                </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">CÓDIGO</th>
-                                <th class="p-3">COMPONENTE</th>
-                                <th class="p-3">DETALLES DEL REPORTE</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-danados"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-4 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">📑 BITÁCORA HISTÓRICA DE AUDITORÍA (LOGS)</h2>
-            <div id="contenedor-logs" class="bg-gray-950 border border-gray-800 p-4 rounded-xl max-h-48 overflow-y-auto font-mono text-xs space-y-2"></div>
-        </section>
-
-    </main>
-
-    <div id="contenedor-alertas" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+    <footer class="border-t border-gray-800 text-center py-6 text-xs text-gray-500 font-mono">
+        <p>Plataforma Relacional de Seguridad de Infraestructura Estudiantil</p>
+        <p class="text-gray-600 mt-1">Creado por Rosa Reyes</p>
+    </footer>
 
     <script>
-        const API_URL = "https://lab-backend-k7c0.onrender.com"; 
-        let miGrafico = null;
+        const API_URL = "https://lab-backend-k7c0.onrender.com/api";
+        let idActivoSeleccionado = null;
+        let idFaltanteSeleccionado = null;
+
+        // Gestión de Mensajes y Alertas Personalizadas
+        function mostrarAlerta(titulo, mensaje, tipo = 'success') {
+            const alertBox = document.getElementById('custom-alert');
+            const icon = document.getElementById('alert-icon');
+            const titleEl = document.getElementById('alert-title');
+            const msgEl = document.getElementById('alert-message');
+            titleEl.textContent = titulo; msgEl.textContent = mensaje;
+            if(tipo === 'success') {
+                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-teal-500 p-4 rounded shadow-2xl flex items-start space-x-3 text-gray-100";
+                icon.textContent = "✅";
+            } else {
+                alertBox.className = "fixed top-20 right-6 z-50 max-w-md w-full bg-gray-800 border-l-4 border-red-500 p-4 rounded shadow-2xl flex items-start space-x-3 text-gray-100";
+                icon.textContent = "❌";
+            }
+            alertBox.classList.remove('hidden');
+            setTimeout(cerrarAlerta, 4500);
+        }
+        function cerrarAlerta() { document.getElementById('custom-alert').classList.add('hidden'); }
+
+        // Control de Flujos de Login
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuario = document.getElementById('log-usuario').value;
+            const contrasena = document.getElementById('log-contrasena').value;
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, contrasena })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('lab_token', data.token);
+                    localStorage.setItem('lab_rol', data.rol);
+                    verificarSesion();
+                    mostrarAlerta("Acceso Concedido", `Sesión iniciada con rol: ${data.rol}`, "success");
+                } else {
+                    const err = await res.json();
+                    mostrarAlerta("Acceso Denegado", err.error, "error");
+                }
+            } catch (e) {
+                mostrarAlerta("Despertando Servidor", "Render está arrancando el backend remoto. Espera 10 segundos e intenta de nuevo.", "error");
+            }
+        });
 
         function verificarSesion() {
+            const token = localStorage.getItem('lab_token');
             const rol = localStorage.getItem('lab_rol');
-            if(!rol) { window.location.href = 'login.html'; }
-            actualizarTodo();
+            if (token) {
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('contenido-plataforma').classList.remove('hidden');
+                
+                // Renderizar estilos del rol asignado
+                const badge = document.getElementById('badge-rol');
+                badge.textContent = `Rol: ${rol}`;
+                if(rol === 'admin') {
+                    badge.className = "text-xs bg-teal-950 text-teal-400 border border-teal-800 px-3 py-1 rounded-full font-mono uppercase";
+                } else {
+                    badge.className = "text-xs bg-amber-950 text-amber-400 border border-amber-800 px-3 py-1 rounded-full font-mono uppercase";
+                }
+                
+                actualizarTodo();
+            } else {
+                document.getElementById('pantalla-login').classList.remove('hidden');
+                document.getElementById('contenido-plataforma').classList.add('hidden');
+            }
         }
 
-        function mostrarAlerta(titulo, msg, tipo="success") {
-            const cont = document.getElementById('contenedor-alertas');
-            const color = tipo === "success" ? "border-teal-500 text-teal-400 bg-teal-950/80" : "border-red-500 text-red-400 bg-red-950/80";
-            const el = document.createElement('div');
-            el.className = `p-4 border rounded-xl backdrop-blur-sm shadow-xl transition-all duration-300 max-w-sm pointer-events-auto ${color}`;
-            el.innerHTML = `<h4 class="font-bold text-sm">${titulo}</h4><p class="text-xs mt-1">${msg}</p>`;
-            cont.appendChild(el);
-            setTimeout(() => el.remove(), 4000);
+        function cerrarSesion() {
+            localStorage.removeItem('lab_token');
+            localStorage.removeItem('lab_rol');
+            document.getElementById('form-login').reset();
+            verificarSesion();
         }
 
+        // Control de Ventanas Modales de Confirmación
+        function abrirModalBaja(id) { idActivoSeleccionado = id; document.getElementById('modal-confirmar-baja').classList.remove('hidden'); }
+        function cerrarModalBaja() { document.getElementById('modal-confirmar-baja').classList.add('hidden'); }
+        function abrirModalSurtir(id, elemento, cantidad) {
+            idFaltanteSeleccionado = id;
+            document.getElementById('surtir-descripcion').innerHTML = `Unidades de <strong class="text-purple-400">${elemento}</strong>. Demandadas: <strong>${cantidad}</strong>.`;
+            document.getElementById('modal-surtir').classList.remove('hidden');
+        }
+        function cerrarModalSurtir() { document.getElementById('modal-surtir').classList.add('hidden'); }
+
+        // Manejadores de Procesos Asíncronos
+        document.getElementById('btn-confirmar-baja-ejecutar').addEventListener('click', async () => {
+            try {
+                const res = await fetch(`${API_URL}/activos/${idActivoSeleccionado}`, { method: 'DELETE' });
+                if(res.ok) { cerrarModalBaja(); mostrarAlerta("Activo Removido", "Removido del inventario físico.", "success"); actualizarTodo(); }
+            } catch { mostrarAlerta("Error", "Fallo de conexión.", "error"); }
+        });
+
+        document.getElementById('btn-confirmar-surtir-ejecutar').addEventListener('click', async () => {
+            const unidades = parseInt(document.getElementById('surtir-input-cantidad').value);
+            if(isNaN(unidades) || unidades <= 0) return;
+            try {
+                const res = await fetch(`${API_URL}/faltantes/${idFaltanteSeleccionado}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cantidadAsurtir: unidades })
+                });
+                if(res.ok) { cerrarModalSurtir(); document.getElementById('surtir-input-cantidad').value = ''; mostrarAlerta("Insumo Surtido", "Migrado automáticamente al inventario general.", "success"); actualizarTodo(); }
+                else { const err = await res.json(); mostrarAlerta("Validación", err.error, "error"); }
+            } catch { mostrarAlerta("Error", "El servidor no respondió.", "error"); }
+        });
+
+        document.getElementById('form-activo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                nombre: document.getElementById('act-nombre').value,
+                codigo: document.getElementById('act-codigo').value,
+                categoria: document.getElementById('act-categoria').value,
+                ubicacion: document.getElementById('act-ubicacion').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/activos`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) { document.getElementById('form-activo').reset(); mostrarAlerta("Registro Completado", "Activo guardado en la base de datos.", "success"); actualizarTodo(); }
+                else { const err = await res.json(); mostrarAlerta("Aviso", err.error, "error"); }
+            } catch { mostrarAlerta("Error de Red", "El backend no se encuentra en línea.", "error"); }
+        });
+
+        document.getElementById('form-faltante').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                elemento: document.getElementById('fal-elemento').value,
+                cantidad: parseInt(document.getElementById('fal-cantidad').value),
+                prioridad: document.getElementById('fal-prioridad').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/faltantes`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) { document.getElementById('form-faltante').reset(); mostrarAlerta("Añadido", "Faltante en cola de revisión.", "success"); actualizarTodo(); }
+            } catch { mostrarAlerta("Falla", "No hay comunicación con el backend.", "error"); }
+        });
+
+        document.getElementById('form-danado').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                nombre: document.getElementById('dan-nombre').value,
+                codigo: document.getElementById('dan-codigo').value,
+                reporte: document.getElementById('dan-reporte').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/danados`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) { document.getElementById('form-danado').reset(); mostrarAlerta("Reportado", "Incidencia mapeada correctamente.", "success"); actualizarTodo(); }
+            } catch { mostrarAlerta("Error", "Servidor no disponible.", "error"); }
+        });
+
+        // Consulta y Renderizado de Tablas Dinámicas
         async function actualizarTodo() {
             const rolActual = localStorage.getItem('lab_rol');
+
             try {
-                // 1. OBTENER ACTIVOS Y CALCULAR ESTADÍSTICAS DEL GRÁFICO
+                // Renderizado de Activos
                 const resAct = await fetch(`${API_URL}/activos`);
-                let conteoCategorias = { "Servidores": 0, "Redes": 0, "Estaciones": 0, "Periféricos": 0 };
                 if(resAct.ok) {
                     const datos = await resAct.json();
-                    document.getElementById('dash-total-activos').textContent = datos.length;
-                    
                     const tbody = document.getElementById('tabla-activos'); tbody.innerHTML = '';
                     datos.forEach(a => {
-                        if(a.categoria.includes("Servidores")) conteoCategorias["Servidores"]++;
-                        else if(a.categoria.includes("Redes")) conteoCategorias["Redes"]++;
-                        else if(a.categoria.includes("Estaciones")) conteoCategorias["Estaciones"]++;
-                        else conteoCategorias["Periféricos"]++;
-
-                        // Añadimos clase 'no-print' a la celda de acción para que no aparezca en el PDF
-                        const btnBaja = (rolActual === 'admin') 
-                            ? `<button onclick="eliminarActivo(${a.id})" class="bg-red-950/40 text-red-400 border border-red-900/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-red-900 hover:text-white transition-all">🔴 Baja</button>`
+                        const botonBaja = (rolActual === 'admin') 
+                            ? `<button onclick="abrirModalBaja(${a.id})" class="bg-red-950/40 text-red-400 border border-red-900/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-red-900 hover:text-white transition-all">🔴 Baja</button>`
                             : `<span class="text-xs text-gray-600 italic">Restringido</span>`;
                         
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-teal-400">${a.codigo}</td><td class="p-3 font-medium">${a.nombre}</td><td class="p-3 text-xs text-gray-400">${a.categoria}</td><td class="p-3 text-xs text-gray-400">${a.ubicacion}</td><td class="p-3 text-center no-print">${btnBaja}</td></tr>`;
+                        tbody.innerHTML += `<tr class="hover:bg-gray-700/30"><td class="p-3 font-mono font-bold text-teal-400">${a.codigo}</td><td class="p-3">${a.nombre}</td><td class="p-3 text-xs text-gray-400">${a.categoria}</td><td class="p-3 text-xs text-gray-400">${a.ubicacion}</td><td class="p-3 text-center">${botonBaja}</td></tr>`;
                     });
                 }
 
-                // 2. OBTENER REQUERIMIENTOS
+                // Renderizado de Faltantes
                 const resFal = await fetch(`${API_URL}/faltantes`);
-                let criticos = 0;
                 if(resFal.ok) {
                     const datos = await resFal.json();
                     const tbody = document.getElementById('tabla-faltantes'); tbody.innerHTML = '';
                     datos.forEach(f => {
-                        if(f.prioridad === 'Alta') criticos++;
-                        
-                        const btnSurtir = (rolActual === 'admin')
-                            ? `<button onclick="surtirFaltante(${f.id})" class="bg-purple-900/40 text-purple-300 border border-purple-700/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-purple-800 hover:text-white transition-all">📥 Surtir</button>`
+                        const botonSurtir = (rolActual === 'admin')
+                            ? `<button onclick="abrirModalSurtir(${f.id}, '${f.elemento}', ${f.cantidad})" class="bg-purple-900/40 text-purple-300 border border-purple-700/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-purple-800 hover:text-white transition-all">📥 Surtir</button>`
                             : `<span class="text-xs text-gray-600 italic">Lectura</span>`;
-                        
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-purple-400">#${f.id}</td><td class="p-3">${f.elemento}</td><td class="p-3 text-center font-bold">${f.cantidad || f.amount || 0}</td><td class="p-3 text-center"><span class="text-xs px-2 py-0.5 rounded border border-purple-800/60 bg-purple-900/20 text-purple-400">${f.prioridad}</span></td><td class="p-3 text-center no-print">${btnSurtir}</td></tr>`;
+
+                        tbody.innerHTML += `<tr class="hover:bg-gray-700/30"><td class="p-3 font-mono text-purple-400">#${f.id}</td><td class="p-3">${f.elemento}</td><td class="p-3 text-center font-bold">${f.cantidad}</td><td class="p-3 text-center"><span class="text-xs px-2 py-0.5 rounded border border-purple-800 bg-purple-900/20 text-purple-400">${f.prioridad}</span></td><td class="p-3 text-center">${botonSurtir}</td></tr>`;
                     });
-                    document.getElementById('dash-total-criticos').textContent = criticos;
                 }
 
-                // 3. OBTENER DAÑADOS
+                // Renderizado de Dañados
                 const resDan = await fetch(`${API_URL}/danados`);
                 if(resDan.ok) {
                     const datos = await resDan.json();
-                    document.getElementById('dash-total-danados').textContent = datos.length;
-                    
                     const tbody = document.getElementById('tabla-danados'); tbody.innerHTML = '';
                     if(datos.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-600 italic">No hay fallas pendientes.</td></tr>`;
                     datos.forEach(d => {
-                        const btnReparado = (rolActual === 'admin')
+                        const botonReparado = (rolActual === 'admin')
                             ? `<button onclick="archivarFalla(${d.id})" class="bg-orange-950/40 text-orange-400 border border-orange-900/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-orange-900 hover:text-white transition-all">⚙️ Reparado</button>`
                             : `<span class="text-xs text-gray-600 italic">Reportado</span>`;
-                        
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-orange-400">${d.codigo}</td><td class="p-3 font-medium">${d.nombre}</td><td class="p-3 text-xs text-gray-400">${d.reporte}</td><td class="p-3 text-center no-print">${btnReparado}</td></tr>`;
+
+                        tbody.innerHTML += `<tr class="hover:bg-gray-700/30"><td class="p-3 font-mono font-bold text-orange-400">${d.codigo}</td><td class="p-3 font-medium">${d.nombre}</td><td class="p-3 text-xs text-gray-400">${d.reporte}</td><td class="p-3 text-center">${botonReparado}</td></tr>`;
                     });
                 }
 
-                // 4. RENDERIZAR GRÁFICO (CHART.JS)
-                const ctx = document.getElementById('chartCategorias').getContext('2d');
-                if (miGrafico) { miGrafico.destroy(); }
-                
-                miGrafico = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Servidores', 'Redes', 'Estaciones', 'Periféricos'],
-                        datasets: [{
-                            data: [conteoCategorias["Servidores"], conteoCategorias["Redes"], conteoCategorias["Estaciones"], conteoCategorias["Periféricos"]],
-                            backgroundColor: ['#14b8a6', '#3b82f6', '#a855f7', '#f97316'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-
-                // 5. BITÁCORA DE LOGS
+                // Renderizado de Logs de Auditoría
                 const resLog = await fetch(`${API_URL}/bitacora`);
                 if(resLog.ok) {
                     const datos = await resLog.json();
                     const container = document.getElementById('contenedor-logs'); container.innerHTML = '';
                     datos.forEach(l => {
-                        container.innerHTML += `<div class="py-1 border-b border-gray-900 text-gray-500"><strong class="text-emerald-400">[${l.accion}]</strong> ${l.detalles}</div>`;
+                        container.innerHTML += `<div class="py-1 border-b border-gray-900 text-gray-400"><strong class="text-emerald-400">[${l.accion}]</strong> ${l.detalles}</div>`;
                     });
                 }
-            } catch (e) { console.error("Error en la sincronización:", e); }
-        }
-
-        async function crearActivo() {
-            const nombre = document.getElementById('act-nombre').value;
-            const codigo = document.getElementById('act-codigo').value;
-            const categoria = document.getElementById('act-categoria').value;
-            const ubicacion = document.getElementById('act-ubicacion').value;
-            if(!nombre || !codigo || !ubicacion) return mostrarAlerta("Campos vacíos", "Por favor llena todo el formulario.", "error");
-
-            try {
-                const r = await fetch(`${API_URL}/activos`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ nombre, codigo, categoria, ubicacion, usuario: localStorage.getItem('lab_rol') })
-                });
-                if(r.ok) { 
-                    mostrarAlerta("Éxito", "Activo incorporado."); 
-                    document.getElementById('act-nombre').value = '';
-                    document.getElementById('act-codigo').value = '';
-                    document.getElementById('act-ubicacion').value = '';
-                    actualizarTodo(); 
-                }
-            } catch(e) { mostrarAlerta("Error", "No se pudo crear.", "error"); }
-        }
-
-        async function eliminarActivo(id) {
-            if(!confirm("¿Confirmas la baja física y remoción de seguridad de este activo TI?")) return;
-            try {
-                const r = await fetch(`${API_URL}/activos/${id}`, { method: 'DELETE' });
-                if(r.ok) { mostrarAlerta("Baja procesada", "El activo fue removido."); actualizarTodo(); }
-            } catch(e) { mostrarAlerta("Error", "No se pudo eliminar.", "error"); }
+            } catch (e) { console.log("Servidor asíncrono temporalmente inactivo."); }
         }
 
         async function archivarFalla(id) {
             try {
-                const r = await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE' });
-                if(r.ok) { mostrarAlerta("Reparación Concluida", "Equipo devuelto al estado operativo."); actualizarTodo(); }
-            } catch(e) { mostrarAlerta("Error", "No se pudo archivar el reporte.", "error"); }
-        }
-
-        // NUEVO: FUNCIÓN PARA GENERAR EL REPORTE EN PDF LIMPIO
-        function exportarPDF() {
-            // Ocultamos elementos interactivos temporalmente añadiendo estilos CSS reactivos
-            const elementosAOcultar = document.querySelectorAll('.no-print, button, select, input');
-            elementosAOcultar.forEach(el => el.style.visibility = 'hidden');
-
-            const elemento = document.getElementById('contenido-plataforma');
-            const opciones = {
-                margin:       10,
-                filename:     'Reporte_Auditoria_Inventario_TI.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, logging: false, backgroundColor: '#111827' }, // Mantiene el tono oscuro elegante
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }  // Horizontal para que quepan bien las tablas
-            };
-
-            // Generamos el PDF e inmediatamente restauramos la interfaz original
-            html2pdf().from(elemento).set(opciones).save().then(() => {
-                elementosAOcultar.forEach(el => el.style.visibility = 'visible');
-                mostrarAlerta("PDF Descargado", "El reporte de auditoría se generó con éxito.");
-            });
+                const res = await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE' });
+                if(res.ok) { mostrarAlerta("Reparación Concluida", "Equipo devuelto a estado operativo.", "success"); actualizarTodo(); }
+            } catch { mostrarAlerta("Error", "No se pudo archivar el reporte.", "error"); }
         }
 
         document.addEventListener('DOMContentLoaded', verificarSesion);
