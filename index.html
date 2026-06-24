@@ -3,307 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Trazabilidad e Inventario TI</title>
+    <title>Sistema de Trazabilidad de Activos TI</title>
+    <!-- Tailwind CSS CDN para una interfaz moderna y limpia -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- SweetAlert2 para alertas e informes profesionales -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen selection:bg-teal-500 selection:text-gray-900">
+<body class="bg-slate-900 text-slate-100 min-h-screen">
 
-    <main id="contenido-plataforma" class="max-w-7xl mx-auto p-6 space-y-8">
-        
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                    🛡️ Plataforma de Trazabilidad Tecnológica
-                </h1>
-                <p class="text-xs text-gray-400">Laboratorio de Redes e Infraestructura de Servidores</p>
+    <!-- ================= SECCIÓN DE AUTENTICACIÓN (LOGIN) ================= -->
+    <div id="seccion-login" class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+            <div class="text-center mb-8">
+                <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Control de Activos TI</h2>
+                <p class="text-slate-400 text-sm mt-1">Laboratorio de Ingeniería de Informática</p>
             </div>
-            <div class="flex items-center gap-3 self-end sm:self-auto">
-                <button onclick="exportarPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-gray-900 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-lg">
-                    📊 Exportar Reporte (PDF)
+            
+            <form onsubmit="procesarLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Usuario del Sistema</label>
+                    <input type="text" id="log-usuario" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Ej. admin o user">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Contraseña</label>
+                    <input type="password" id="log-contrasena" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-[0.98]">
+                    Validar Credenciales
                 </button>
-                <button onclick="cerrarSesion()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer">
-                    🚪 Salir
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= PANEL PRINCIPAL (DASHBOARD) ================= -->
+    <div id="seccion-dashboard" class="hidden min-h-screen flex flex-col">
+        <!-- Barra de Navegación Superior -->
+        <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="p-2 bg-indigo-600 rounded-xl text-white font-bold">TI</span>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-none">Trazabilidad de Equipos</h1>
+                    <p class="text-xs text-slate-400 mt-1" id="info-sesion"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <nav class="flex bg-slate-900 p-1 rounded-xl border border-slate-700" id="navegacion-roles">
+                    <button onclick="cambiarPestana('activos')" id="btn-pes-activos" class="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white">Inventario Activos</button>
+                    <button onclick="cambiarPestana('faltantes')" id="btn-pes-faltantes" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">Requerimientos</button>
+                    <button onclick="cambiarPestana('danados')" id="btn-pes-danados" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">Equipos Dañados</button>
+                    <button onclick="cambiarPestana('bitacora')" id="btn-pes-bitacora" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">Bitácora Global</button>
+                </nav>
+                <button onclick="cerrarSesion()" class="bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-rose-500/20">
+                    Salir
                 </button>
-                <span class="text-xs px-2 py-1 rounded bg-teal-950/50 text-teal-400 border border-teal-900 font-mono">Entorno: Nube</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">TOTAL ACTIVOS</span>
-                <span id="dash-total-activos" class="text-3xl font-bold text-teal-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">EN MANTENIMIENTO</span>
-                <span id="dash-total-danados" class="text-3xl font-bold text-orange-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono">REQUERIMIENTOS CRÍTICOS</span>
-                <span id="dash-total-criticos" class="text-3xl font-bold text-purple-400 mt-2">0</span>
-            </div>
-            <div class="bg-gray-800/60 border border-gray-800 p-4 rounded-xl flex flex-col items-center justify-center backdrop-blur-sm">
-                <span class="text-xs text-gray-400 font-mono mb-2">MÉTRICAS POR CATEGORÍA</span>
-                <div class="w-full max-w-[100px] h-[100px]">
-                    <canvas id="chartCategorias"></canvas>
-                </div>
-            </div>
-        </div>
+        <!-- Contenido Central Dinámico -->
+        <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-teal-400 flex items-center gap-2">🖥️ MÓDULO DE ACTIVOS FÍSICOS TI</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">📥 Registrar Elemento</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL DISPOSITIVO / ACTIVO</label>
-                        <input type="text" id="act-nombre" placeholder="Ej. Servidor Dell PowerEdge" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CÓDIGO ÚNICO DE INVENTARIO</label>
-                        <input type="text" id="act-codigo" placeholder="Ej. INF-SRV-02" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CATEGORÍA DEL RECURSO</label>
-                        <select id="act-categoria" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
-                            <option value="Servidores">Servidores</option>
-                            <option value="Redes">Redes</option>
-                            <option value="Estaciones">Estaciones</option>
-                            <option value="Periféricos">Periféricos</option>
+            <!-- PESTAÑA: GESTIÓN DE ACTIVOS -->
+            <section id="pes-activos" class="space-y-6">
+                <!-- Formulario Administrativo de Alta -->
+                <div id="form-alta-activos" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 hidden">
+                    <h3 class="text-md font-semibold text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Registro de Nuevo Activo de Red
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="act-nombre" placeholder="Nombre (Ej. Switch Cisco 24P)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+                        <input type="text" id="act-codigo" placeholder="Código Único (Ej. SW-LAB01-05)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+                        <select id="act-categoria" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
+                            <option value="Estaciones de Trabajo">Estaciones de Trabajo</option>
+                            <option value="Servidores de Datos">Servidores de Datos</option>
+                            <option value="Infraestructura de Red">Infraestructura de Red</option>
+                            <option value="Periféricos Avanzados">Periféricos Avanzados</option>
                         </select>
+                        <input type="text" id="act-ubicacion" placeholder="Ubicación (Ej. Rack Central A)" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white">
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">UBICACIÓN FÍSICA (LABORATORIO)</label>
-                        <input type="text" id="act-ubicacion" placeholder="Ej. Laboratorio de Redes" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-teal-500">
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="crearActivo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/20">
+                            Guardar en Servidor
+                        </button>
                     </div>
-                    <button onclick="crearActivo()" class="w-full bg-teal-600 hover:bg-teal-500 text-gray-900 font-bold p-2 rounded text-sm transition-all">Desplegar Alta de Activo</button>
                 </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">CÓDIGO</th>
-                                <th class="p-3">NOMBRE</th>
-                                <th class="p-3">CATEGORÍA</th>
-                                <th class="p-3">UBICACIÓN</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-activos"></tbody>
-                    </table>
+
+                <!-- Tabla de Visualización de Inventario -->
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-xl">
+                    <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
+                        <h2 class="text-md font-bold text-white uppercase tracking-wider">Inventario Total en Base de Datos</h2>
+                        <span class="bg-indigo-500/10 text-indigo-400 text-xs px-3 py-1 rounded-full font-semibold border border-indigo-500/20" id="contador-activos">Cargando...</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700">
+                                    <th class="px-6 py-4">ID</th>
+                                    <th class="px-6 py-4">Nombre del Equipo</th>
+                                    <th class="px-6 py-4">Identificador Electrónico</th>
+                                    <th class="px-6 py-4">Categoría Relacional</th>
+                                    <th class="px-6 py-4">Ubicación Física</th>
+                                    <th class="px-6 py-4 text-right" id="th-acciones-activos">Acciones de Baja</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-purple-400 flex items-center gap-2">📋 MÓDULO DE REQUERIMIENTOS (COMPONENTES FALTANTES)</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">🔍 Solicitar Insumo</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL COMPONENTE</label>
-                        <input type="text" id="fal-elemento" placeholder="Ej. Cable UTP Categoría 6A" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
+            <!-- PESTAÑA: REQUERIMIENTOS / SOLICITUDES -->
+            <section id="pes-faltantes" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Formulario de Pedido Interno -->
+                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 h-fit space-y-4">
+                        <h3 class="text-md font-bold text-white uppercase tracking-wider">Generar Requerimiento</h3>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Elemento Faltante</label>
+                            <input type="text" id="fal-elemento" placeholder="Ej. Memoria RAM DDR5 16GB" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Cantidad Solicitada</label>
+                            <input type="number" id="fal-cantidad" min="1" placeholder="Ej. 5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Grado de Prioridad</label>
+                            <select id="fal-prioridad" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="Baja">Baja - Reabastecimiento</option>
+                                <option value="Media">Media - Proyecto en Curso</option>
+                                <option value="Crítica">Crítica - Caída de Servicio</option>
+                            </select>
+                        </div>
+                        <button onclick="crearFaltante()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20 mt-2">
+                            Publicar Requerimiento
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CANTIDAD REQUERIDA</label>
-                        <input type="number" id="fal-cantidad" placeholder="Ej. 5" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
+
+                    <!-- Lista de solicitudes abiertas -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2">
+                        <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
+                            <h2 class="text-md font-bold text-white uppercase tracking-wider">Demandas del Laboratorio</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700">
+                                        <th class="px-6 py-4">Insumo Requerido</th>
+                                        <th class="px-6 py-4 text-center">Faltan</th>
+                                        <th class="px-6 py-4">Prioridad</th>
+                                        <th class="px-6 py-4 text-right" id="th-acciones-faltantes">Surtir Almacén</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                    <!-- Filas dinámicas -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NIVEL DE PRIORIDAD</label>
-                        <select id="fal-prioridad" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-purple-500">
-                            <option value="Baja">Baja (Stock de Reserva)</option>
-                            <option value="Media">Media</option>
-                            <option value="Alta">Alta</option>
-                        </select>
-                    </div>
-                    <button onclick="crearFaltante()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold p-2 rounded text-sm transition-all">Solicitar Requerimiento</button>
                 </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">ID</th>
-                                <th class="p-3">ELEMENTO FALTANTE</th>
-                                <th class="p-3 text-center">CANTIDAD</th>
-                                <th class="p-3 text-center">PRIORIDAD</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-faltantes"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-6 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-orange-400 flex items-center gap-2">⚠️ MÓDULO DE INCIDENCIAS (EQUIPOS DAÑADOS)</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl space-y-4 no-print">
-                    <h3 class="text-sm font-bold text-gray-300">🚨 Reportar Falla</h3>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CÓDIGO ÚNICO DEL EQUIPO</label>
-                        <input type="text" id="dan-codigo" placeholder="Ej. INF-SRV-02" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500">
+            <!-- PESTAÑA: CONTROL DE INCIDENCIAS / DAÑADOS -->
+            <section id="pes-danados" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Formulario de Registro de Averías -->
+                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 h-fit space-y-4">
+                        <h3 class="text-md font-bold text-white uppercase tracking-wider">Reportar Incidencia</h3>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Nombre del Activo Afetado</label>
+                            <input type="text" id="dan-nombre" placeholder="Ej. Monitor Dell 24" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Código de Red de Equipo</label>
+                            <input type="text" id="dan-codigo" placeholder="Ej. MON-LAB02-14" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Reporte de Diagnóstico de Daño</label>
+                            <input type="text" id="dan-reporte" placeholder="Ej. Líneas muertas en panel LCD por sobrevoltaje" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button onclick="crearDanado()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-rose-600/20 mt-2">
+                            Emitir Reporte de Falla
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">NOMBRE DEL COMPONENTE AFECTADO</label>
-                        <input type="text" id="dan-nombre" placeholder="Ej. Disco Duro SSD" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500">
+
+                    <!-- Listado de Dañados -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2">
+                        <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
+                            <h2 class="text-md font-bold text-white uppercase tracking-wider">Historial de Equipos Fuera de Servicio</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700">
+                                        <th class="px-6 py-4">Equipo Afectado</th>
+                                        <th class="px-6 py-4">Código</th>
+                                        <th class="px-6 py-4">Diagnóstico Técnico</th>
+                                        <th class="px-6 py-4 text-right" id="th-acciones-danados">Archivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                    <!-- Filas dinámicas -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">DESCRIPCIÓN DEL REPORTE</label>
-                        <textarea id="dan-reporte" placeholder="Ej. El sector de arranque falló tras apagón" class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm focus:outline-none focus:border-orange-500 h-20"></textarea>
-                    </div>
-                    <button onclick="crearDanado()" class="w-full bg-orange-600 hover:bg-orange-500 text-gray-900 font-bold p-2 rounded text-sm transition-all">Levantar Reporte</button>
                 </div>
-                <div class="lg:col-span-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-xs text-gray-400">
-                                <th class="p-3">CÓDIGO</th>
-                                <th class="p-3">COMPONENTE</th>
-                                <th class="p-3">DETALLES DEL REPORTE</th>
-                                <th class="p-3 text-center no-print">ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-danados"></tbody>
-                    </table>
+            </section>
+
+            <!-- PESTAÑA: BITÁCORA / LOGS DE EVENTOS -->
+            <section id="pes-bitacora" class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden hidden shadow-xl">
+                <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
+                    <h2 class="text-md font-bold text-white uppercase tracking-wider">Bitácora de Auditoría en Servidor</h2>
                 </div>
-            </div>
-        </section>
+                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora">
+                    <!-- Logs en formato terminal -->
+                </div>
+            </section>
 
-        <section class="bg-gray-800/40 border border-gray-800 rounded-xl p-6 space-y-4 backdrop-blur-sm">
-            <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">📑 BITÁCORA HISTÓRICA DE AUDITORÍA (LOGS)</h2>
-            <div id="contenedor-logs" class="bg-gray-950 border border-gray-800 p-4 rounded-xl max-h-48 overflow-y-auto font-mono text-xs space-y-2"></div>
-        </section>
+        </main>
+    </div>
 
-    </main>
-
-    <div id="contenedor-alertas" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
-
+    <!-- ================= CONTROLADOR LÓGICO DEL FRONTEND ================= -->
     <script>
-        const API_URL = "https://lab-backend-k7c0.onrender.com/api"; // Ruta unificada con prefijo /api
-        let miGrafico = null;
+        // Configuración de la URL de tu servicio backend de Render
+        const API_URL = "https://lab-backend-ko0n.onrender.com/api";
 
-        function verificarSesion() {
-            const token = localStorage.getItem('lab_token');
-            if(!token) { window.location.href = './login.html'; }
-            actualizarTodo();
-        }
+        // Estado persistente del usuario logueado en la aplicación
+        let usuarioActual = JSON.parse(localStorage.getItem('usuario_trazabilidad')) || null;
 
-        function cerrarSesion() {
-            localStorage.clear();
-            window.location.href = './login.html';
-        }
-
-        // Helper para inyectar token de autorización críptico en las peticiones mutables
+        // Cabeceras directas y simplificadas para la comunicación remota (Sin Tokens Complejos)
         function obtenerCabeceras() {
             return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('lab_token')}`
+                'Content-Type': 'application/json'
             };
         }
 
-        function mostrarAlerta(titulo, msg, tipo="success") {
-            const cont = document.getElementById('contenedor-alertas');
-            const color = tipo === "success" ? "border-teal-500 text-teal-400 bg-teal-950/80" : "border-red-500 text-red-400 bg-red-950/80";
-            const el = document.createElement('div');
-            el.className = `p-4 border rounded-xl backdrop-blur-sm shadow-xl transition-all duration-300 max-w-sm pointer-events-auto ${color}`;
-            el.innerHTML = `<h4 class="font-bold text-sm">${titulo}</h4><p class="text-xs mt-1">${msg}</p>`;
-            cont.appendChild(el);
-            setTimeout(() => el.remove(), 4000);
+        // Validación visual y lógica inicial de sesión
+        document.addEventListener('DOMContentLoaded', () => {
+            if (usuarioActual) {
+                inicializarPanel();
+            }
+        });
+
+        // Manejador del Login directo sin encriptación
+        async function procesarLogin(e) {
+            e.preventDefault();
+            const usuario = document.getElementById('log-usuario').value;
+            const contrasena = document.getElementById('log-contrasena').value;
+
+            try {
+                const r = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: obtenerCabeceras(),
+                    body: JSON.stringify({ usuario, contrasena })
+                });
+                const d = await r.json();
+
+                if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
+
+                // Almacenamos los datos de la sesión del usuario de forma local
+                localStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
+                usuarioActual = d;
+                
+                mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido al panel técnico.", "success");
+                inicializarPanel();
+            } catch (err) {
+                mostrarAlerta("Error de Autenticación", err.message, "error");
+            }
         }
 
-        async function actualizarTodo() {
-            const rolActual = localStorage.getItem('lab_rol');
+        // Despliegue del Dashboard según el rol del usuario asignado
+        function inicializarPanel() {
+            document.getElementById('seccion-login').classList.add('hidden');
+            document.getElementById('seccion-dashboard').classList.remove('hidden');
+            document.getElementById('info-sesion').innerText = `Usuario activo: ${usuarioActual.usuario} | Privilegios: ${usuarioActual.rol.toUpperCase()}`;
+
+            // Restricción visual de privilegios administrativos
+            if (usuarioActual.rol !== 'admin') {
+                document.getElementById('form-alta-activos').classList.add('hidden');
+                document.getElementById('th-acciones-activos').classList.add('hidden');
+                document.getElementById('th-acciones-faltantes').classList.add('hidden');
+                document.getElementById('th-acciones-danados').classList.add('hidden');
+            } else {
+                document.getElementById('form-alta-activos').classList.remove('hidden');
+                document.getElementById('th-acciones-activos').classList.remove('hidden');
+                document.getElementById('th-acciones-faltantes').classList.remove('hidden');
+                document.getElementById('th-acciones-danados').classList.remove('hidden');
+            }
+
+            actualizarTodo();
+        }
+
+        // Cierre de sesión y limpieza local
+        function cerrarSesion() {
+            localStorage.removeItem('usuario_trazabilidad');
+            usuarioActual = null;
+            document.getElementById('seccion-dashboard').classList.add('hidden');
+            document.getElementById('seccion-login').classList.remove('hidden');
+        }
+
+        // Enrutador de pestañas de navegación en la interfaz
+        function cambiarPestana(id) {
+            const pestanas = ['activos', 'faltantes', 'danados', 'bitacora'];
+            pestanas.forEach(p => {
+                document.getElementById(`pes-${p}`).classList.add('hidden');
+                const btn = document.getElementById(`btn-pes-${p}`);
+                btn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+            });
+
+            document.getElementById(`pes-${id}`).classList.remove('hidden');
+            document.getElementById(`btn-pes-${id}`).className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white";
+        }
+
+        // Helper para llamar a todas las actualizaciones del sistema de forma síncrona
+        function actualizarTodo() {
+            obtenerActivos();
+            obtenerFaltantes();
+            obtenerDanados();
+            obtenerBitacora();
+        }
+
+        // === OPERACIONES CRUD: MÓDULO ACTIVOS ===
+        async function obtenerActivos() {
             try {
-                // 1. OBTENER ACTIVOS Y CALCULAR ESTADÍSTICAS
-                const resAct = await fetch(`${API_URL}/activos`);
-                let conteoCategorias = { "Servidores": 0, "Redes": 0, "Estaciones": 0, "Periféricos": 0 };
-                if(resAct.ok) {
-                    const datos = await resAct.json();
-                    document.getElementById('dash-total-activos').textContent = datos.length;
-                    
-                    const tbody = document.getElementById('tabla-activos'); tbody.innerHTML = '';
-                    datos.forEach(a => {
-                        if(a.categoria.includes("Servidores")) conteoCategorias["Servidores"]++;
-                        else if(a.categoria.includes("Redes")) conteoCategorias["Redes"]++;
-                        else if(a.categoria.includes("Estaciones")) conteoCategorias["Estaciones"]++;
-                        else conteoCategorias["Periféricos"]++;
-
-                        const btnBaja = (rolActual === 'admin') 
-                            ? `<button onclick="eliminarActivo(${a.id})" class="bg-red-950/40 text-red-400 border border-red-900/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-red-900 hover:text-white transition-all">🔴 Baja</button>`
-                            : `<span class="text-xs text-gray-600 italic">Restringido</span>`;
-                        
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-teal-400">${a.codigo}</td><td class="p-3 font-medium">${a.nombre}</td><td class="p-3 text-xs text-gray-400">${a.categoria}</td><td class="p-3 text-xs text-gray-400">${a.ubicacion}</td><td class="p-3 text-center no-print">${btnBaja}</td></tr>`;
-                    });
-                }
-
-                // 2. OBTENER REQUERIMIENTOS (FALTANTES)
-                const resFal = await fetch(`${API_URL}/faltantes`);
-                let criticos = 0;
-                if(resFal.ok) {
-                    const datos = await resFal.json();
-                    const tbody = document.getElementById('tabla-faltantes'); tbody.innerHTML = '';
-                    datos.forEach(f => {
-                        if(f.prioridad === 'Alta') criticos++;
-                        
-                        const btnSurtir = (rolActual === 'admin')
-                            ? `<button onclick="surtirFaltante(${f.id})" class="bg-purple-900/40 text-purple-300 border border-purple-700/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-purple-800 hover:text-white transition-all">📥 Surtir</button>`
-                            : `<span class="text-xs text-gray-600 italic">Lectura</span>`;
-                        
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-purple-400">#${f.id}</td><td class="p-3">${f.elemento}</td><td class="p-3 text-center font-bold">${f.cantidad || 0}</td><td class="p-3 text-center"><span class="text-xs px-2 py-0.5 rounded border border-purple-800/60 bg-purple-900/20 text-purple-400">${f.prioridad}</span></td><td class="p-3 text-center no-print">${btnSurtir}</td></tr>`;
-                    });
-                    document.getElementById('dash-total-criticos').textContent = criticos;
-                }
-
-                // 3. OBTENER DAÑADOS
-                const resDan = await fetch(`${API_URL}/danados`);
-                if(resDan.ok) {
-                    const datos = await resDan.json();
-                    document.getElementById('dash-total-danados').textContent = datos.length;
-                    
-                    const tbody = document.getElementById('tabla-danados'); tbody.innerHTML = '';
-                    if(datos.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-600 italic">No hay fallas pendientes.</td></tr>`;
-                    datos.forEach(d => {
-                        const btnReparado = (rolActual === 'admin')
-                            ? `<button onclick="archivarFalla(${d.id})" class="bg-orange-950/40 text-orange-400 border border-orange-900/50 text-xs px-2 py-1 rounded cursor-pointer hover:bg-orange-900 hover:text-white transition-all">⚙️ Reparado</button>`
-                            : `<span class="text-xs text-gray-600 italic">Reportado</span>`;
-                        
-                        tbody.innerHTML += `<tr class="hover:bg-gray-800/30 border-b border-gray-800/50"><td class="p-3 font-mono text-orange-400">${d.codigo}</td><td class="p-3 font-medium">${d.nombre}</td><td class="p-3 text-xs text-gray-400">${d.reporte}</td><td class="p-3 text-center no-print">${btnReparado}</td></tr>`;
-                    });
-                }
-
-                // 4. RENDIMIENTO GRÁFICO (CHART.JS)
-                const ctx = document.getElementById('chartCategorias').getContext('2d');
-                if (miGrafico) { miGrafico.destroy(); }
+                const r = await fetch(`${API_URL}/activos`, { headers: obtenerCabeceras() });
+                const datos = await r.json();
+                document.getElementById('contador-activos').innerText = `${datos.length} Equipos`;
                 
-                miGrafico = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Servidores', 'Redes', 'Estaciones', 'Periféricos'],
-                        datasets: [{
-                            data: [conteoCategorias["Servidores"], conteoCategorias["Redes"], conteoCategorias["Estaciones"], conteoCategorias["Periféricos"]],
-                            backgroundColor: ['#14b8a6', '#3b82f6', '#a855f7', '#f97316'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
+                let html = "";
+                datos.forEach(a => {
+                    html += `
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="px-6 py-4 font-mono text-xs text-indigo-400">#${a.id}</td>
+                            <td class="px-6 py-4 font-medium text-white">${a.nombre}</td>
+                            <td class="px-6 py-4 font-mono text-xs">${a.codigo}</td>
+                            <td class="px-6 py-4 text-slate-400">${a.categoria}</td>
+                            <td class="px-6 py-4 text-slate-400">${a.ubicacion}</td>
+                            ${usuarioActual.rol === 'admin' ? `
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="eliminarActivo(${a.id})" class="text-rose-500 hover:text-rose-400 font-medium transition-colors">Dar de Baja</button>
+                            </td>` : ''}
+                        </tr>`;
                 });
-
-                // 5. BITÁCORA DE LOGS
-                const resLog = await fetch(`${API_URL}/bitacora`);
-                if(resLog.ok) {
-                    const datos = await resLog.json();
-                    const container = document.getElementById('contenedor-logs'); container.innerHTML = '';
-                    datos.forEach(l => {
-                        container.innerHTML += `<div class="py-1 border-b border-gray-900 text-gray-500"><strong class="text-emerald-400">[${l.accion}]</strong> ${l.detalles}</div>`;
-                    });
-                }
-            } catch (e) { console.error("Error en sincronización remota:", e); }
+                document.getElementById('tabla-activos').innerHTML = html;
+            } catch (e) { console.error(e); }
         }
 
         async function crearActivo() {
@@ -311,7 +362,8 @@
             const codigo = document.getElementById('act-codigo').value;
             const categoria = document.getElementById('act-categoria').value;
             const ubicacion = document.getElementById('act-ubicacion').value;
-            if(!nombre || !codigo || !ubicacion) return mostrarAlerta("Campos vacíos", "Por favor llena todo el formulario.", "error");
+
+            if(!nombre || !codigo || !ubicacion) return mostrarAlerta("Campos incompletos", "Llena los campos requeridos para el alta.", "error");
 
             try {
                 const r = await fetch(`${API_URL}/activos`, {
@@ -319,39 +371,77 @@
                     headers: obtenerCabeceras(),
                     body: JSON.stringify({ nombre, codigo, categoria, ubicacion })
                 });
-                const data = await r.json();
-                if(r.ok) { 
-                    mostrarAlerta("Éxito", "Activo incorporado a la infraestructura."); 
-                    document.getElementById('act-nombre').value = '';
-                    document.getElementById('act-codigo').value = '';
-                    document.getElementById('act-ubicacion').value = '';
-                    actualizarTodo(); 
-                } else { mostrarAlerta("Error de Validación", data.error || "Código repetido.", "error"); }
-            } catch(e) { mostrarAlerta("Error", "No se pudo realizar la inserción.", "error"); }
+                const d = await r.json();
+                if(!r.ok) throw new Error(d.error);
+
+                mostrarAlerta("Activo Registrado", "El equipo ha sido mapeado e integrado a las tablas de red.");
+                document.getElementById('act-nombre').value = '';
+                document.getElementById('act-codigo').value = '';
+                document.getElementById('act-ubicacion').value = '';
+                actualizarTodo();
+            } catch(err) { mostrarAlerta("Fallo de Inserción", err.message, "error"); }
         }
 
         async function eliminarActivo(id) {
-            if(!confirm("¿Confirmas la baja física y remoción de seguridad de este activo TI?")) return;
+            Swal.fire({
+                title: '¿Confirmar retiro físico?',
+                text: "Se generará una baja permanente del servidor.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#1e293b',
+                color: '#f8fafc'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await fetch(`${API_URL}/activos/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
+                        mostrarAlerta("Baja Ejecutada", "El activo se ha eliminado de las tablas lógicas.");
+                        actualizarTodo();
+                    } catch (e) { console.error(e); }
+                }
+            });
+        }
+
+        // === OPERACIONES CRUD: MÓDULO REQUERIMIENTOS ===
+        async function obtenerFaltantes() {
             try {
-                const r = await fetch(`${API_URL}/activos/${id}`, { 
-                    method: 'DELETE',
-                    headers: obtenerCabeceras()
+                const r = await fetch(`${API_URL}/faltantes`, { headers: obtenerCabeceras() });
+                const datos = await r.json();
+                let html = "";
+                datos.forEach(f => {
+                    const colorPrio = f.prioridad === 'Crítica' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : f.prioridad === 'Media' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-700/50 text-slate-400 border-slate-600/30';
+                    html += `
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="px-6 py-4 font-medium text-white">${f.elemento}</td>
+                            <td class="px-6 py-4 text-center font-bold text-indigo-400">${f.cantidad} pzs</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 text-xs rounded-full border font-medium ${colorPrio}">${f.prioridad}</span>
+                            </td>
+                            ${usuarioActual.rol === 'admin' ? `
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="surtirFaltante(${f.id}, ${f.cantidad})" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-lg font-medium text-xs border border-indigo-500/30 transition-all">Surtir</button>
+                            </td>` : ''}
+                        </tr>`;
                 });
-                if(r.ok) { mostrarAlerta("Baja procesada", "El activo fue removido."); actualizarTodo(); }
-            } catch(e) { mostrarAlerta("Error", "No se pudo procesar la baja.", "error"); }
+                document.getElementById('tabla-faltantes').innerHTML = html;
+            } catch(e) { console.error(e); }
         }
 
         async function crearFaltante() {
             const elemento = document.getElementById('fal-elemento').value;
             const cantidad = parseInt(document.getElementById('fal-cantidad').value);
-            const prioridad = document.getElementById('fal-prioridad').value;
+            const priority = document.getElementById('fal-prioridad').value;
+
             if(!elemento || !cantidad) return mostrarAlerta("Campos vacíos", "Llena los datos del insumo.", "error");
 
             try {
                 const r = await fetch(`${API_URL}/faltantes`, {
                     method: 'POST',
                     headers: obtenerCabeceras(),
-                    body: JSON.stringify({ elemento, cantidad, prioridad })
+                    body: JSON.stringify({ elemento, cantidad, prioridad: priority })
                 });
                 if(r.ok) {
                     mostrarAlerta("Insumo Solicitado", "Requerimiento agregado correctamente.");
@@ -362,28 +452,66 @@
             } catch(e) { mostrarAlerta("Error", "No se pudo procesar el requerimiento.", "error"); }
         }
 
-        async function surtirFaltante(id) {
-            const cant = prompt("¿Qué cantidad deseas surtir e ingresar al inventario general?");
-            const cantidadAsurtir = parseInt(cant);
-            if(!cantidadAsurtir || cantidadAsurtir <= 0) return;
+        async function surtirFaltante(id, cantMaxima) {
+            Swal.fire({
+                title: 'Procesar ingreso a Almacén',
+                text: `¿Cuántas unidades vas a incorporar de las ${cantMaxima} requeridas?`,
+                input: 'number',
+                inputAttributes: { min: 1, max: cantMaxima, step: 1 },
+                inputValue: cantMaxima,
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Surtir Unidades',
+                background: '#1e293b',
+                color: '#f8fafc'
+            }).then(async (result) => {
+                if (result.isConfirmed && result.value) {
+                    const cantidadAsurtir = parseInt(result.value);
+                    try {
+                        const r = await fetch(`${API_URL}/faltantes/${id}`, {
+                            method: 'PUT',
+                            headers: obtenerCabeceras(),
+                            body: JSON.stringify({ cantidadAsurtir })
+                        });
+                        const d = await r.json();
+                        if(!r.ok) throw new Error(d.error);
 
+                        mostrarAlerta("Almacén Surtido", "Se ingresaron los nuevos activos generados dinámicamente.");
+                        actualizarTodo();
+                    } catch (err) { mostrarAlerta("Error", err.message, "error"); }
+                }
+            });
+        }
+
+        // === OPERACIONES CRUD: MÓDULO DAÑADOS ===
+        async function obtenerDanados() {
             try {
-                const r = await fetch(`${API_URL}/faltantes/${id}`, {
-                    method: 'PUT',
-                    headers: obtenerCabeceras(),
-                    body: JSON.stringify({ cantidadAsurtir })
+                const r = await fetch(`${API_URL}/danados`, { headers: obtenerCabeceras() });
+                const datos = await r.json();
+                let html = "";
+                datos.forEach(d => {
+                    html += `
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="px-6 py-4 font-medium text-white">${d.nombre}</td>
+                            <td class="px-6 py-4 font-mono text-xs text-rose-400">${d.codigo}</td>
+                            <td class="px-6 py-4 text-slate-400 max-w-xs truncate">${d.reporte}</td>
+                            ${usuarioActual.rol === 'admin' ? `
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="eliminarDanado(${d.id})" class="text-slate-500 hover:text-slate-400 font-medium transition-colors">Archivar</button>
+                            </td>` : ''}
+                        </tr>`;
                 });
-                const data = await r.json();
-                if(r.ok) { mostrarAlerta("Surtido con Éxito", "Componentes agregados a Estaciones de Trabajo."); actualizarTodo(); }
-                else { mostrarAlerta("Error de Stock", data.error, "error"); }
-            } catch(e) { mostrarAlerta("Error", "Fallo al surtir.", "error"); }
+                document.getElementById('tabla-danados').innerHTML = html;
+            } catch(e) { console.error(e); }
         }
 
         async function crearDanado() {
-            const codigo = document.getElementById('dan-codigo').value;
             const nombre = document.getElementById('dan-nombre').value;
+            const codigo = document.getElementById('dan-codigo').value;
             const reporte = document.getElementById('dan-reporte').value;
-            if(!codigo || !nombre || !reporte) return mostrarAlerta("Campos vacíos", "Completa la ficha técnica del daño.", "error");
+
+            if(!nombre || !codigo || !reporte) return mostrarAlerta("Campos vacíos", "Detalla la incidencia para auditoría.", "error");
 
             try {
                 const r = await fetch(`${API_URL}/danados`, {
@@ -392,45 +520,51 @@
                     body: JSON.stringify({ nombre, codigo, reporte })
                 });
                 if(r.ok) {
-                    mostrarAlerta("Reporte Levantado", "Incidencia guardada en el historial.");
-                    document.getElementById('dan-codigo').value = '';
+                    mostrarAlerta("Incidencia Reportada", "Equipo aislado lógicamente del inventario general.");
                     document.getElementById('dan-nombre').value = '';
+                    document.getElementById('dan-codigo').value = '';
                     document.getElementById('dan-reporte').value = '';
                     actualizarTodo();
                 }
-            } catch(e) { mostrarAlerta("Error", "No se pudo registrar la falla.", "error"); }
+            } catch(e) { console.error(e); }
         }
 
-        async function archivarFalla(id) {
+        async function eliminarDanado(id) {
             try {
-                const r = await fetch(`${API_URL}/danados/${id}`, { 
-                    method: 'DELETE',
-                    headers: obtenerCabeceras()
-                });
-                if(r.ok) { mostrarAlerta("Reparación Concluida", "Equipo devuelto al estado operativo."); actualizarTodo(); }
-            } catch(e) { mostrarAlerta("Error", "No se pudo archivar el reporte.", "error"); }
+                await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
+                mostrarAlerta("Registro Archivado", "La incidencia pasó al historial permanente.");
+                actualizarTodo();
+            } catch(e) { console.error(e); }
         }
 
-        function exportarPDF() {
-            const elementosAOcultar = document.querySelectorAll('.no-print, button, select, input');
-            elementosAOcultar.forEach(el => el.style.visibility = 'hidden');
+        // === AUDITORÍA: MÓDULO BITÁCORA ===
+        async function obtenerBitacora() {
+            try {
+                const r = await fetch(`${API_URL}/bitacora`, { headers: obtenerCabeceras() });
+                const datos = await r.json();
+                let html = "";
+                datos.forEach(b => {
+                    const colorAccion = b.accion === 'ALTA' ? 'text-emerald-400' : b.accion === 'BAJA' ? 'text-rose-500' : b.accion === 'FALLA' ? 'text-amber-500' : 'text-indigo-400';
+                    const fechaLocal = new Date(b.fecha).toLocaleString();
+                    html += `<div><span class="text-slate-500">[${fechaLocal}]</span> <span class="font-bold ${colorAccion}">${b.accion}</span>: <span class="text-slate-300">${b.detalles}</span></div>`;
+                });
+                document.getElementById('contenedor-bitacora').innerHTML = html || "<div>[SISTEMA]: No se registran operaciones en esta sesión.</div>";
+            } catch(e) { console.error(e); }
+        }
 
-            const elemento = document.getElementById('contenido-plataforma');
-            const opciones = {
-                margin:       10,
-                filename:     'Reporte_Auditoria_Inventario_TI.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, logging: false, backgroundColor: '#111827' },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
-
-            html2pdf().from(elemento).set(opciones).save().then(() => {
-                elementosAOcultar.forEach(el => el.style.visibility = 'visible');
-                mostrarAlerta("PDF Descargado", "El reporte de auditoría se generó con éxito.");
+        // Helper global de notificaciones limpias
+        function mostrarAlerta(titulo, mensaje, icono = 'success') {
+            Swal.fire({
+                title: titulo,
+                text: mensaje,
+                icon: icono,
+                timer: 2500,
+                showConfirmButton: false,
+                background: '#1e293b',
+                color: '#f8fafc',
+                customClass: { popup: 'rounded-2xl border border-slate-700' }
             });
         }
-
-        document.addEventListener('DOMContentLoaded', verificarSesion);
     </script>
 </body>
 </html>
