@@ -10,59 +10,65 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
 
-        /* ================= REGLAS DE IMPRESIÓN EXCLUSIVAS PARA LA LISTA ================= */
+        /* ================= REGLAS DE IMPRESIÓN IMPECABLES (SOLO LISTAS) ================= */
         @media print {
-            /* Ocultar la interfaz completa del sistema por defecto */
             body *, html * {
-                visibility: hidden;
+                visibility: hidden !important;
                 background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
             }
             
-            /* Hacer visible ÚNICAMENTE el bloque activo de datos (su tabla y filas correspondientes) */
-            #pes-activos, #pes-activos *,
-            #pes-faltantes, #pes-faltantes *,
-            #pes-danados, #pes-danados *,
-            #pes-bitacora, #pes-bitacora *,
-            .overflow-x-auto, .overflow-x-auto *, 
-            table, table * {
-                visibility: visible;
+            table, table *, #contenedor-bitacora, #contenedor-bitacora * {
+                visibility: visible !important;
             }
 
-            /* Ocultar de manera estricta los formularios de alta y columnas de acciones administrativas */
-            #form-alta-activos, #form-alta-activos *,
-            #pes-faltantes > div > div:first-child, #pes-faltantes > div > div:first-child *, /* Formulario de requerimientos */
-            #pes-danados > div > div:first-child, #pes-danados > div > div:first-child *,     /* Formulario de incidencias */
-            .px-6.py-4.bg-slate-800\/50, /* Cabecera decorativa interna de las tablas */
-            th:last-child,  /* Columna de acciones en el encabezado */
-            td:last-child { /* Botones de acción en las celdas */
+            table {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            th:last-child, td:last-child {
                 display: none !important;
+                visibility: hidden !important;
             }
 
-            /* Forzar el reajuste de la tabla al inicio de la hoja en el PDF */
-            .overflow-x-auto, table, #pes-bitacora {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+            th {
+                background-color: #f1f5f9 !important;
                 color: #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+                padding: 12px 8px !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                font-size: 12px !important;
             }
-
-            /* Estilos de alto contraste (Blanco y Negro) para no gastar tinta del laboratorio */
+            
             tr {
-                background: white !important;
+                background-color: #ffffff !important;
                 color: #000000 !important;
                 border-bottom: 1px solid #cbd5e1 !important;
             }
-            th {
-                background: #f1f5f9 !important;
+
+            td {
                 color: #000000 !important;
-                border-bottom: 2px solid #000000 !important;
+                padding: 12px 8px !important;
+                font-size: 12px !important;
             }
-            /* Formateo de logs de la bitácora en modo texto plano para el PDF */
-            #contenedor-bitacora, #contenedor-bitacora * {
-                visibility: visible;
-                color: #1e293b !important;
-                background: transparent !important;
+
+            #contenedor-bitacora {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                color: #000000 !important;
+            }
+            #contenedor-bitacora div {
+                color: #000000 !important;
+                border-bottom: 1px dashed #cbd5e1 !important;
+                padding: 4px 0 !important;
             }
         }
     </style>
@@ -114,7 +120,7 @@
                 
                 <button onclick="imprimirReporteActual()" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-indigo-500/30 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimir Reporte
+                    Imprimir PDF
                 </button>
 
                 <button onclick="cerrarSesion()" class="bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-rose-500/20">
@@ -165,8 +171,7 @@
                                     <th class="px-6 py-4 text-right" id="th-acciones-activos">Acciones de Baja</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                </tbody>
+                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                         </table>
                     </div>
                 </div>
@@ -211,8 +216,7 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-faltantes">Surtir Almacén</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    </tbody>
+                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -254,8 +258,7 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-danados">Archivo</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    </tbody>
+                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -266,8 +269,7 @@
                 <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                     <h2 class="text-md font-bold text-white uppercase tracking-wider">Bitácora de Auditoría en Servidor</h2>
                 </div>
-                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora">
-                    </div>
+                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora"></div>
             </section>
 
         </main>
@@ -276,15 +278,59 @@
     <script>
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
         let seccionActual = 'activos';
-        let usuarioActual = JSON.parse(localStorage.getItem('usuario_trazabilidad')) || null;
+        
+        // CAMBIO ESTRATÉGICO: sessionStorage en lugar de localStorage para requerir login al recargar/cerrar
+        let usuarioActual = JSON.parse(sessionStorage.getItem('usuario_trazabilidad')) || null;
+        let temporizadorInactividad;
 
         function obtenerCabeceras() {
             return { 'Content-Type': 'application/json' };
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (usuarioActual) { inicializarPanel(); }
+            if (usuarioActual) { 
+                inicializarPanel(); 
+            } else {
+                cerrarSesion(); // Asegura estado limpio
+            }
         });
+
+        // ================= SISTEMA DE CONTROL DE INACTIVIDAD (2 MINUTOS) =================
+        function iniciarControlInactividad() {
+            // Reiniciar el contador al detectar interacciones humanas básicas
+            window.onload = reiniciarTemporizador;
+            document.onmousemove = reiniciarTemporizador;
+            document.onkeypress = reiniciarTemporizador;
+            document.onclick = reiniciarTemporizador;
+            document.onscroll = reiniciarTemporizador;
+        }
+
+        function detenerControlInactividad() {
+            clearTimeout(temporizadorInactividad);
+            document.onmousemove = null;
+            document.onkeypress = null;
+            document.onclick = null;
+            document.onscroll = null;
+        }
+
+        function reiniciarTemporizador() {
+            clearTimeout(temporizadorInactividad);
+            // 120000 milisegundos = 2 minutos exactos
+            temporizadorInactividad = setTimeout(expirarSesionPorInactividad, 120000);
+        }
+
+        function expirarSesionPorInactividad() {
+            cerrarSesion();
+            Swal.fire({
+                title: 'Sesión Expirada',
+                text: 'Se ha cerrado la sesión tras 2 minutos de inactividad por protección de datos.',
+                icon: 'info',
+                background: '#1e293b',
+                color: '#f8fafc',
+                confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-2xl border border-slate-700' }
+            });
+        }
 
         async function procesarLogin(e) {
             e.preventDefault();
@@ -300,7 +346,8 @@
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
 
-                localStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
+                // Guardar en sesión volátil
+                sessionStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
                 usuarioActual = d;
                 
                 mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido.", "success");
@@ -327,13 +374,19 @@
                 document.getElementById('th-acciones-danados').classList.remove('hidden');
             }
             actualizarTodo();
+            iniciarControlInactividad(); // Arranca el monitoreo de tiempo
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('usuario_trazabilidad');
+            sessionStorage.removeItem('usuario_trazabilidad');
             usuarioActual = null;
+            detenerControlInactividad(); // Apaga el monitoreo
             document.getElementById('seccion-dashboard').classList.add('hidden');
             document.getElementById('seccion-login').classList.remove('hidden');
+            
+            // Limpiar inputs del login
+            document.getElementById('log-usuario').value = '';
+            document.getElementById('log-contrasena').value = '';
         }
 
         function cambiarPestana(id) {
@@ -512,15 +565,15 @@
 
         async function crearDanado() {
             const nombre = document.getElementById('dan-nombre').value;
-            const codigo = document.getElementById('dan-codigo').value;
+            const code = document.getElementById('dan-codigo').value;
             const reporte = document.getElementById('dan-reporte').value;
 
-            if(!nombre || !codigo || !reporte) return;
+            if(!nombre || !code || !reporte) return;
 
             await fetch(`${API_URL}/danados`, {
                 method: 'POST',
                 headers: obtenerCabeceras(),
-                body: JSON.stringify({ nombre, codigo, reporte })
+                body: JSON.stringify({ nombre, codigo: code, reporte })
             });
             document.getElementById('dan-nombre').value = '';
             document.getElementById('dan-codigo').value = '';
@@ -557,13 +610,10 @@
             };
             
             const tituloOriginal = document.title;
-            // Modificamos dinámicamente el título del archivo para que el PDF se guarde con un nombre formal
             document.title = `${titulos[seccionActual]} - Ingeniería de Informática`;
             
-            // Disparador del sistema operativo
             window.print();
             
-            // Reestablecemos el título original
             document.title = tituloOriginal;
         }
 
