@@ -10,7 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
 
-        /* ================= REGLAS DE IMPRESIÓN IMPECABLES (SOLO LISTAS) ================= */
+        /* ================= REGLAS DE IMPRESIÓN DEL PRIMER PROMPT (SÍ FUNCIONAN) ================= */
         @media print {
             /* 1. Ocultar absolutamente toda la interfaz gráfica de la pantalla */
             body *, html * {
@@ -292,16 +292,63 @@
     <script>
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
         let seccionActual = 'activos';
-        let usuarioActual = JSON.parse(localStorage.getItem('usuario_trazabilidad')) || null;
+        
+        // ESTRATEGIA DE VOLATILIDAD: Usamos sessionStorage para obligar login al cerrar pestaña o recargar la página
+        let usuarioActual = JSON.parse(sessionStorage.getItem('usuario_trazabilidad')) || null;
+        let temporizadorInactividad;
 
         function obtenerCabeceras() {
             return { 'Content-Type': 'application/json' };
         }
 
+        // Al iniciar la página, evaluamos el estado de la sesión volátil
         document.addEventListener('DOMContentLoaded', () => {
-            if (usuarioActual) { inicializarPanel(); }
+            if (usuarioActual) { 
+                inicializarPanel(); 
+            } else {
+                cerrarSesion();
+            }
         });
 
+        // ================= SISTEMA INTEGRADO DE CONTROL DE INACTIVIDAD (2 MINUTOS) =================
+        function iniciarControlInactividad() {
+            // Escuchadores de eventos globales nativos del navegador
+            window.onload = reiniciarTemporizador;
+            document.onmousemove = reiniciarTemporizador;
+            document.onkeypress = reiniciarTemporizador;
+            document.onclick = reiniciarTemporizador;
+            document.onscroll = reiniciarTemporizador;
+            reiniciarTemporizador(); // Ejecución inicial limpia
+        }
+
+        function detenerControlInactividad() {
+            clearTimeout(temporizadorInactividad);
+            document.onmousemove = null;
+            document.onkeypress = null;
+            document.onclick = null;
+            document.onscroll = null;
+        }
+
+        function reiniciarTemporizador() {
+            clearTimeout(temporizadorInactividad);
+            // 120000 milisegundos = 2 minutos exactos de inactividad
+            temporizadorInactividad = setTimeout(expirarSesionPorInactividad, 120000);
+        }
+
+        function expirarSesionPorInactividad() {
+            cerrarSesion();
+            Swal.fire({
+                title: 'Sesión Expirada',
+                text: 'Se ha cerrado la sesión tras 2 minutos de inactividad por protección de datos.',
+                icon: 'info',
+                background: '#1e293b',
+                color: '#f8fafc',
+                confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-2xl border border-slate-700' }
+            });
+        }
+
+        // ================= PROCEDIMIENTOS DEL SISTEMA =================
         async function procesarLogin(e) {
             e.preventDefault();
             const usuario = document.getElementById('log-usuario').value;
@@ -316,7 +363,8 @@
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
 
-                localStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
+                // Guardar en la sesión de la pestaña actual únicamente
+                sessionStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
                 usuarioActual = d;
                 
                 mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido.", "success");
@@ -343,13 +391,20 @@
                 document.getElementById('th-acciones-danados').classList.remove('hidden');
             }
             actualizarTodo();
+            iniciarControlInactividad(); // Activación del guardián de inactividad
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('usuario_trazabilidad');
+            sessionStorage.removeItem('usuario_trazabilidad');
             usuarioActual = null;
+            detenerControlInactividad(); // Desactivar timers para evitar bucles
+            
             document.getElementById('seccion-dashboard').classList.add('hidden');
             document.getElementById('seccion-login').classList.remove('hidden');
+            
+            // Limpieza del formulario de login
+            document.getElementById('log-usuario').value = '';
+            document.getElementById('log-contrasena').value = '';
         }
 
         function cambiarPestana(id) {
@@ -387,7 +442,7 @@
                             <td class="px-6 py-4 font-mono text-xs">${a.codigo}</td>
                             <td class="px-6 py-4 text-slate-400">${a.categoria}</td>
                             <td class="px-6 py-4 text-slate-400">${a.ubicacion}</td>
-                            ${usuarioActual.rol === 'admin' ? `
+                            ${usuarioActual && usuarioActual.rol === 'admin' ? `
                             <td class="px-6 py-4 text-right">
                                 <button onclick="eliminarActivo(${a.id})" class="text-rose-500 hover:text-rose-400 font-medium transition-colors">Dar de Baja</button>
                             </td>` : ''}
@@ -455,7 +510,7 @@
                             <td class="px-6 py-4">
                                 <span class="px-2.5 py-1 text-xs rounded-full border font-medium ${colorPrio}">${f.prioridad}</span>
                             </td>
-                            ${usuarioActual.rol === 'admin' ? `
+                            ${usuarioActual && usuarioActual.rol === 'admin' ? `
                             <td class="px-6 py-4 text-right">
                                 <button onclick="surtirFaltante(${f.id}, ${f.cantidad})" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium border border-indigo-500/30">Surtir</button>
                             </td>` : ''}
@@ -516,7 +571,7 @@
                             <td class="px-6 py-4 font-medium text-white">${d.nombre}</td>
                             <td class="px-6 py-4 font-mono text-xs text-rose-400">${d.codigo}</td>
                             <td class="px-6 py-4 text-slate-400">${d.reporte}</td>
-                            ${usuarioActual.rol === 'admin' ? `
+                            ${usuarioActual && usuarioActual.rol === 'admin' ? `
                             <td class="px-6 py-4 text-right">
                                 <button onclick="eliminarDanado(${d.id})" class="text-slate-500 hover:text-slate-400 text-xs font-medium">Archivar</button>
                             </td>` : ''}
