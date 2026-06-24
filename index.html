@@ -12,6 +12,7 @@
 
         /* ================= REGLAS DE IMPRESIÓN IMPECABLES (SOLO LISTAS) ================= */
         @media print {
+            /* 1. Ocultar absolutamente toda la interfaz gráfica de la pantalla */
             body *, html * {
                 visibility: hidden !important;
                 background: transparent !important;
@@ -19,10 +20,15 @@
                 border: none !important;
             }
             
-            table, table *, #contenedor-bitacora, #contenedor-bitacora * {
+            /* 2. Hacer visibles ÚNICAMENTE las tablas de datos de cualquier bloque activo */
+            table, 
+            table *, 
+            #contenedor-bitacora, 
+            #contenedor-bitacora * {
                 visibility: visible !important;
             }
 
+            /* 3. Forzar que la tabla visible se mueva al inicio de la página impresa */
             table {
                 position: absolute !important;
                 left: 0 !important;
@@ -31,11 +37,14 @@
                 border-collapse: collapse !important;
             }
 
-            th:last-child, td:last-child {
+            /* 4. Ocultar columnas de control administrativo (Acciones, Surtir, Archivar) */
+            th:last-child, 
+            td:last-child {
                 display: none !important;
                 visibility: hidden !important;
             }
 
+            /* 5. Diseño limpio de alto contraste en Blanco y Negro para el PDF */
             th {
                 background-color: #f1f5f9 !important;
                 color: #000000 !important;
@@ -58,6 +67,7 @@
                 font-size: 12px !important;
             }
 
+            /* Ajustes para renderizar la bitácora en texto plano */
             #contenedor-bitacora {
                 position: absolute !important;
                 left: 0 !important;
@@ -171,7 +181,8 @@
                                     <th class="px-6 py-4 text-right" id="th-acciones-activos">Acciones de Baja</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
+                            <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -216,7 +227,8 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-faltantes">Surtir Almacén</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
+                                <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -258,7 +270,8 @@
                                         <th class="px-6 py-4 text-right" id="th-acciones-danados">Archivo</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300"></tbody>
+                                <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300">
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -269,7 +282,8 @@
                 <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                     <h2 class="text-md font-bold text-white uppercase tracking-wider">Bitácora de Auditoría en Servidor</h2>
                 </div>
-                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora"></div>
+                <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora">
+                    </div>
             </section>
 
         </main>
@@ -278,59 +292,15 @@
     <script>
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
         let seccionActual = 'activos';
-        
-        // CAMBIO ESTRATÉGICO: sessionStorage en lugar de localStorage para requerir login al recargar/cerrar
-        let usuarioActual = JSON.parse(sessionStorage.getItem('usuario_trazabilidad')) || null;
-        let temporizadorInactividad;
+        let usuarioActual = JSON.parse(localStorage.getItem('usuario_trazabilidad')) || null;
 
         function obtenerCabeceras() {
             return { 'Content-Type': 'application/json' };
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (usuarioActual) { 
-                inicializarPanel(); 
-            } else {
-                cerrarSesion(); // Asegura estado limpio
-            }
+            if (usuarioActual) { inicializarPanel(); }
         });
-
-        // ================= SISTEMA DE CONTROL DE INACTIVIDAD (2 MINUTOS) =================
-        function iniciarControlInactividad() {
-            // Reiniciar el contador al detectar interacciones humanas básicas
-            window.onload = reiniciarTemporizador;
-            document.onmousemove = reiniciarTemporizador;
-            document.onkeypress = reiniciarTemporizador;
-            document.onclick = reiniciarTemporizador;
-            document.onscroll = reiniciarTemporizador;
-        }
-
-        function detenerControlInactividad() {
-            clearTimeout(temporizadorInactividad);
-            document.onmousemove = null;
-            document.onkeypress = null;
-            document.onclick = null;
-            document.onscroll = null;
-        }
-
-        function reiniciarTemporizador() {
-            clearTimeout(temporizadorInactividad);
-            // 120000 milisegundos = 2 minutos exactos
-            temporizadorInactividad = setTimeout(expirarSesionPorInactividad, 120000);
-        }
-
-        function expirarSesionPorInactividad() {
-            cerrarSesion();
-            Swal.fire({
-                title: 'Sesión Expirada',
-                text: 'Se ha cerrado la sesión tras 2 minutos de inactividad por protección de datos.',
-                icon: 'info',
-                background: '#1e293b',
-                color: '#f8fafc',
-                confirmButtonColor: '#4f46e5',
-                customClass: { popup: 'rounded-2xl border border-slate-700' }
-            });
-        }
 
         async function procesarLogin(e) {
             e.preventDefault();
@@ -346,8 +316,7 @@
                 const d = await r.json();
                 if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
 
-                // Guardar en sesión volátil
-                sessionStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
+                localStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
                 usuarioActual = d;
                 
                 mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido.", "success");
@@ -374,19 +343,13 @@
                 document.getElementById('th-acciones-danados').classList.remove('hidden');
             }
             actualizarTodo();
-            iniciarControlInactividad(); // Arranca el monitoreo de tiempo
         }
 
         function cerrarSesion() {
-            sessionStorage.removeItem('usuario_trazabilidad');
+            localStorage.removeItem('usuario_trazabilidad');
             usuarioActual = null;
-            detenerControlInactividad(); // Apaga el monitoreo
             document.getElementById('seccion-dashboard').classList.add('hidden');
             document.getElementById('seccion-login').classList.remove('hidden');
-            
-            // Limpiar inputs del login
-            document.getElementById('log-usuario').value = '';
-            document.getElementById('log-contrasena').value = '';
         }
 
         function cambiarPestana(id) {
@@ -565,15 +528,15 @@
 
         async function crearDanado() {
             const nombre = document.getElementById('dan-nombre').value;
-            const code = document.getElementById('dan-codigo').value;
+            const codigo = document.getElementById('dan-codigo').value;
             const reporte = document.getElementById('dan-reporte').value;
 
-            if(!nombre || !code || !reporte) return;
+            if(!nombre || !codigo || !reporte) return;
 
             await fetch(`${API_URL}/danados`, {
                 method: 'POST',
                 headers: obtenerCabeceras(),
-                body: JSON.stringify({ nombre, codigo: code, reporte })
+                body: JSON.stringify({ nombre, codigo, reporte })
             });
             document.getElementById('dan-nombre').value = '';
             document.getElementById('dan-codigo').value = '';
