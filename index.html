@@ -4,43 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Trazabilidad de Activos TI</title>
-    <!-- Tailwind CSS CDN para una interfaz moderna y limpia -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SweetAlert2 para alertas e informes profesionales -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
 
-        /* Reglas estricta de CSS para la exportación limpia a PDF sin elementos de la interfaz */
+        /* ================= REGLAS DE IMPRESIÓN EXCLUSIVAS PARA LA LISTA ================= */
         @media print {
-            .no-print, #form-alta-activos, form, button, .text-right, th:last-child, td:last-child {
+            /* Ocultar la interfaz completa del sistema por defecto */
+            body *, html * {
+                visibility: hidden;
+                background: transparent !important;
+            }
+            
+            /* Hacer visible ÚNICAMENTE el bloque activo de datos (su tabla y filas correspondientes) */
+            #pes-activos, #pes-activos *,
+            #pes-faltantes, #pes-faltantes *,
+            #pes-danados, #pes-danados *,
+            #pes-bitacora, #pes-bitacora *,
+            .overflow-x-auto, .overflow-x-auto *, 
+            table, table * {
+                visibility: visible;
+            }
+
+            /* Ocultar de manera estricta los formularios de alta y columnas de acciones administrativas */
+            #form-alta-activos, #form-alta-activos *,
+            #pes-faltantes > div > div:first-child, #pes-faltantes > div > div:first-child *, /* Formulario de requerimientos */
+            #pes-danados > div > div:first-child, #pes-danados > div > div:first-child *,     /* Formulario de incidencias */
+            .px-6.py-4.bg-slate-800\/50, /* Cabecera decorativa interna de las tablas */
+            th:last-child,  /* Columna de acciones en el encabezado */
+            td:last-child { /* Botones de acción en las celdas */
                 display: none !important;
             }
-            body {
-                background: white !important;
-                color: black !important;
+
+            /* Forzar el reajuste de la tabla al inicio de la hoja en el PDF */
+            .overflow-x-auto, table, #pes-bitacora {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                color: #000000 !important;
             }
-            .bg-slate-800, .bg-slate-900, .bg-slate-950 {
-                background: transparent !important;
-                border-color: #cbd5e1 !important;
-            }
+
+            /* Estilos de alto contraste (Blanco y Negro) para no gastar tinta del laboratorio */
             tr {
-                page-break-inside: avoid;
-                color: #1e293b !important;
-                border-bottom: 1px solid #e2e8f0 !important;
+                background: white !important;
+                color: #000000 !important;
+                border-bottom: 1px solid #cbd5e1 !important;
             }
             th {
-                color: #0f172a !important;
-                border-bottom: 2px solid #0f172a !important;
+                background: #f1f5f9 !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+            }
+            /* Formateo de logs de la bitácora en modo texto plano para el PDF */
+            #contenedor-bitacora, #contenedor-bitacora * {
+                visibility: visible;
+                color: #1e293b !important;
+                background: transparent !important;
             }
         }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen">
 
-    <!-- ================= SECCIÓN DE AUTENTICACIÓN (LOGIN) ================= -->
-    <div id="seccion-login" class="flex items-center justify-center min-h-screen px-4 no-print">
+    <div id="seccion-login" class="flex items-center justify-center min-h-screen px-4">
         <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
             <div class="text-center mb-8">
                 <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
@@ -59,17 +88,15 @@
                     <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Contraseña</label>
                     <input type="password" id="log-contrasena" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-[0.98]">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30">
                     Validar Credenciales
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ================= PANEL PRINCIPAL (DASHBOARD) ================= -->
     <div id="seccion-dashboard" class="hidden min-h-screen flex flex-col">
-        <!-- Barra de Navegación Superior (Se oculta dinámicamente en impresión) -->
-        <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center gap-4 no-print">
+        <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <span class="p-2 bg-indigo-600 rounded-xl text-white font-bold">TI</span>
                 <div>
@@ -85,10 +112,9 @@
                     <button onclick="cambiarPestana('bitacora')" id="btn-pes-bitacora" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">Bitácora Global</button>
                 </nav>
                 
-                <!-- BOTÓN DE EXPORTACIÓN A PDF -->
-                <button onclick="imprimirReporteActual()" class="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-indigo-500/20 flex items-center gap-2">
+                <button onclick="imprimirReporteActual()" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-indigo-500/30 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimir PDF
+                    Imprimir Reporte
                 </button>
 
                 <button onclick="cerrarSesion()" class="bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-rose-500/20">
@@ -97,12 +123,9 @@
             </div>
         </header>
 
-        <!-- Contenido Central Dinámico -->
         <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
 
-            <!-- PESTAÑA: GESTIÓN DE ACTIVOS -->
             <section id="pes-activos" class="space-y-6">
-                <!-- Formulario Administrativo de Alta -->
                 <div id="form-alta-activos" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 hidden">
                     <h3 class="text-md font-semibold text-white mb-4 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Registro de Nuevo Activo de Red
@@ -125,8 +148,7 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Visualización de Inventario -->
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-xl">
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-xl shadow-slate-950/40">
                     <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
                         <h2 class="text-md font-bold text-white uppercase tracking-wider">Inventario Total en Base de Datos</h2>
                         <span class="bg-indigo-500/10 text-indigo-400 text-xs px-3 py-1 rounded-full font-semibold border border-indigo-500/20" id="contador-activos">Cargando...</span>
@@ -144,17 +166,14 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-activos" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                <!-- Filas dinámicas -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- PESTAÑA: REQUERIMIENTOS / SOLICITUDES -->
             <section id="pes-faltantes" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Formulario de Pedido Interno -->
                     <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 h-fit space-y-4">
                         <h3 class="text-md font-bold text-white uppercase tracking-wider">Generar Requerimiento</h3>
                         <div class="space-y-3">
@@ -173,13 +192,12 @@
                                 <option value="Crítica">Crítica - Caída de Servicio</option>
                             </select>
                         </div>
-                        <button onclick="crearFaltante()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20 mt-2">
+                        <button onclick="crearFaltante()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all mt-2">
                             Publicar Requerimiento
                         </button>
                     </div>
 
-                    <!-- Lista de solicitudes abiertas -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2">
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2 shadow-xl">
                         <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                             <h2 class="text-md font-bold text-white uppercase tracking-wider">Demandas del Laboratorio</h2>
                         </div>
@@ -194,18 +212,15 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabla-faltantes" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    <!-- Filas dinámicas -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- PESTAÑA: CONTROL DE INCIDENCIAS / DAÑADOS -->
             <section id="pes-danados" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Formulario de Registro de Averías -->
                     <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 h-fit space-y-4">
                         <h3 class="text-md font-bold text-white uppercase tracking-wider">Reportar Incidencia</h3>
                         <div class="space-y-3">
@@ -218,15 +233,14 @@
                         </div>
                         <div class="space-y-3">
                             <label class="block text-xs text-slate-400 font-medium">Reporte de Diagnóstico de Daño</label>
-                            <input type="text" id="dan-reporte" placeholder="Ej. Líneas muertas en panel LCD por sobrevoltaje" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <input type="text" id="dan-reporte" placeholder="Ej. Líneas muertas en panel LCD" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
                         </div>
-                        <button onclick="crearDanado()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-rose-600/20 mt-2">
+                        <button onclick="crearDanado()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-2.5 rounded-xl text-sm transition-all mt-2">
                             Emitir Reporte de Falla
                         </button>
                     </div>
 
-                    <!-- Listado de Dañados -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2">
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden lg:col-span-2 shadow-xl">
                         <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                             <h2 class="text-md font-bold text-white uppercase tracking-wider">Historial de Equipos Fuera de Servicio</h2>
                         </div>
@@ -241,53 +255,37 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabla-danados" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                                    <!-- Filas dinámicas -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- PESTAÑA: BITÁCORA / LOGS DE EVENTOS -->
             <section id="pes-bitacora" class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden hidden shadow-xl">
                 <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700">
                     <h2 class="text-md font-bold text-white uppercase tracking-wider">Bitácora de Auditoría en Servidor</h2>
                 </div>
                 <div class="p-6 font-mono text-xs space-y-2 max-h-[500px] overflow-y-auto bg-slate-950 text-slate-400 rounded-b-2xl" id="contenedor-bitacora">
-                    <!-- Logs en formato terminal -->
-                </div>
+                    </div>
             </section>
 
         </main>
     </div>
 
-    <!-- ================= CONTROLADOR LÓGICO DEL FRONTEND ================= -->
     <script>
-        // Configuración de la URL exacta de tu servicio backend de Render
         const API_URL = "https://lab-backend-k7c0.onrender.com/api";
-
-        // Variable para controlar el reporte activo actual
-        let pestanaActiva = 'activos';
-
-        // Estado persistente del usuario logueado en la aplicación
+        let seccionActual = 'activos';
         let usuarioActual = JSON.parse(localStorage.getItem('usuario_trazabilidad')) || null;
 
-        // Cabeceras directas y simplificadas para la comunicación remota
         function obtenerCabeceras() {
-            return {
-                'Content-Type': 'application/json'
-            };
+            return { 'Content-Type': 'application/json' };
         }
 
-        // Validación visual y lógica inicial de sesión
         document.addEventListener('DOMContentLoaded', () => {
-            if (usuarioActual) {
-                inicializarPanel();
-            }
+            if (usuarioActual) { inicializarPanel(); }
         });
 
-        // Manejador del Login directo sin encriptación
         async function procesarLogin(e) {
             e.preventDefault();
             const usuario = document.getElementById('log-usuario').value;
@@ -300,27 +298,23 @@
                     body: JSON.stringify({ usuario, contrasena })
                 });
                 const d = await r.json();
-
                 if (!r.ok) throw new Error(d.error || "Fallo de conexión.");
 
-                // Almacenamos los datos de la sesión del usuario de forma local
                 localStorage.setItem('usuario_trazabilidad', JSON.stringify(d));
                 usuarioActual = d;
                 
-                mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido al panel técnico.", "success");
+                mostrarAlerta(`¡Bienvenido, ${d.usuario}!`, "Acceso concedido.", "success");
                 inicializarPanel();
             } catch (err) {
                 mostrarAlerta("Error de Autenticación", err.message, "error");
             }
         }
 
-        // Despliegue del Dashboard según el rol del usuario asignado
         function inicializarPanel() {
             document.getElementById('seccion-login').classList.add('hidden');
             document.getElementById('seccion-dashboard').classList.remove('hidden');
             document.getElementById('info-sesion').innerText = `Usuario activo: ${usuarioActual.usuario} | Privilegios: ${usuarioActual.rol.toUpperCase()}`;
 
-            // Restricción visual de privilegios administrativos
             if (usuarioActual.rol !== 'admin') {
                 document.getElementById('form-alta-activos').classList.add('hidden');
                 document.getElementById('th-acciones-activos').classList.add('hidden');
@@ -332,11 +326,9 @@
                 document.getElementById('th-acciones-faltantes').classList.remove('hidden');
                 document.getElementById('th-acciones-danados').classList.remove('hidden');
             }
-
             actualizarTodo();
         }
 
-        // Cierre de sesión y limpieza local
         function cerrarSesion() {
             localStorage.removeItem('usuario_trazabilidad');
             usuarioActual = null;
@@ -344,21 +336,18 @@
             document.getElementById('seccion-login').classList.remove('hidden');
         }
 
-        // Enrutador de pestañas de navegación en la interfaz
         function cambiarPestana(id) {
-            pestanaActiva = id; // Guardamos la sección actual en memoria para los títulos del PDF
+            seccionActual = id;
             const pestanas = ['activos', 'faltantes', 'danados', 'bitacora'];
             pestanas.forEach(p => {
                 document.getElementById(`pes-${p}`).classList.add('hidden');
-                const btn = document.getElementById(`btn-pes-${p}`);
-                btn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+                document.getElementById(`btn-pes-${p}`).className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
             });
 
             document.getElementById(`pes-${id}`).classList.remove('hidden');
             document.getElementById(`btn-pes-${id}`).className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white";
         }
 
-        // Helper para llamar a todas las actualizaciones del sistema de forma síncrona
         function actualizarTodo() {
             obtenerActivos();
             obtenerFaltantes();
@@ -366,7 +355,7 @@
             obtenerBitacora();
         }
 
-        // === OPERACIONES CRUD: MÓDULO ACTIVOS ===
+        // === CONTROLADORES API: ACTIVOS ===
         async function obtenerActivos() {
             try {
                 const r = await fetch(`${API_URL}/activos`, { headers: obtenerCabeceras() });
@@ -398,7 +387,7 @@
             const categoria = document.getElementById('act-categoria').value;
             const ubicacion = document.getElementById('act-ubicacion').value;
 
-            if(!nombre || !codigo || !ubicacion) return mostrarAlerta("Campos incompletos", "Llena los campos requeridos para el alta.", "error");
+            if(!nombre || !codigo || !ubicacion) return mostrarAlerta("Campos incompletos", "Completa la ficha técnica.", "error");
 
             try {
                 const r = await fetch(`${API_URL}/activos`, {
@@ -406,41 +395,36 @@
                     headers: obtenerCabeceras(),
                     body: JSON.stringify({ nombre, codigo, categoria, ubicacion })
                 });
-                const d = await r.json();
-                if(!r.ok) throw new Error(d.error);
-
-                mostrarAlerta("Activo Registrado", "El equipo ha sido mapeado e integrado a las tablas de red.");
-                document.getElementById('act-nombre').value = '';
-                document.getElementById('act-codigo').value = '';
-                document.getElementById('act-ubicacion').value = '';
-                actualizarTodo();
-            } catch(err) { mostrarAlerta("Fallo de Inserción", err.message, "error"); }
+                if(r.ok) {
+                    mostrarAlerta("Activo Registrado", "Guardado en la base de datos.");
+                    document.getElementById('act-nombre').value = '';
+                    document.getElementById('act-codigo').value = '';
+                    document.getElementById('act-ubicacion').value = '';
+                    actualizarTodo();
+                }
+            } catch(err) { console.error(err); }
         }
 
         async function eliminarActivo(id) {
             Swal.fire({
-                title: '¿Confirmar retiro físico?',
-                text: "Se generará una baja permanente del servidor.",
+                title: '¿Confirmar retiro?',
+                text: "Se dará de baja lógica en PostgreSQL.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#475569',
                 confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
                 background: '#1e293b',
                 color: '#f8fafc'
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    try {
-                        await fetch(`${API_URL}/activos/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
-                        mostrarAlerta("Baja Ejecutada", "El activo se ha eliminado de las tablas lógicas.");
-                        actualizarTodo();
-                    } catch (e) { console.error(e); }
+                    await fetch(`${API_URL}/activos/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
+                    actualizarTodo();
                 }
             });
         }
 
-        // === OPERACIONES CRUD: MÓDULO REQUERIMIENTOS ===
+        // === CONTROLADORES API: REQUERIMIENTOS ===
         async function obtenerFaltantes() {
             try {
                 const r = await fetch(`${API_URL}/faltantes`, { headers: obtenerCabeceras() });
@@ -457,7 +441,7 @@
                             </td>
                             ${usuarioActual.rol === 'admin' ? `
                             <td class="px-6 py-4 text-right">
-                                <button onclick="surtirFaltante(${f.id}, ${f.cantidad})" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-lg font-medium text-xs border border-indigo-500/30 transition-all">Surtir</button>
+                                <button onclick="surtirFaltante(${f.id}, ${f.cantidad})" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium border border-indigo-500/30">Surtir</button>
                             </td>` : ''}
                         </tr>`;
                 });
@@ -468,58 +452,43 @@
         async function crearFaltante() {
             const elemento = document.getElementById('fal-elemento').value;
             const cantidad = parseInt(document.getElementById('fal-cantidad').value);
-            const priority = document.getElementById('fal-prioridad').value;
+            const prioridad = document.getElementById('fal-prioridad').value;
 
-            if(!elemento || !cantidad) return mostrarAlerta("Campos vacíos", "Llena los datos del insumo.", "error");
+            if(!elemento || !cantidad) return;
 
-            try {
-                const r = await fetch(`${API_URL}/faltantes`, {
-                    method: 'POST',
-                    headers: obtenerCabeceras(),
-                    body: JSON.stringify({ elemento, cantidad, prioridad: priority })
-                });
-                if(r.ok) {
-                    mostrarAlerta("Insumo Solicitado", "Requerimiento agregado correctamente.");
-                    document.getElementById('fal-elemento').value = '';
-                    document.getElementById('fal-cantidad').value = '';
-                    actualizarTodo();
-                }
-            } catch(e) { mostrarAlerta("Error", "No se pudo procesar el requerimiento.", "error"); }
+            await fetch(`${API_URL}/faltantes`, {
+                method: 'POST',
+                headers: obtenerCabeceras(),
+                body: JSON.stringify({ elemento, cantidad, prioridad })
+            });
+            document.getElementById('fal-elemento').value = '';
+            document.getElementById('fal-cantidad').value = '';
+            actualizarTodo();
         }
 
         async function surtirFaltante(id, cantMaxima) {
             Swal.fire({
-                title: 'Procesar ingreso a Almacén',
-                text: `¿Cuántas unidades vas a incorporar de las ${cantMaxima} requeridas?`,
+                title: 'Surtir Insumo',
+                text: `Cantidad a ingresar (Máx: ${cantMaxima}):`,
                 input: 'number',
-                inputAttributes: { min: 1, max: cantMaxima, step: 1 },
                 inputValue: cantMaxima,
                 showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
-                cancelButtonColor: '#475569',
-                confirmButtonText: 'Surtir Unidades',
                 background: '#1e293b',
                 color: '#f8fafc'
             }).then(async (result) => {
                 if (result.isConfirmed && result.value) {
                     const cantidadAsurtir = parseInt(result.value);
-                    try {
-                        const r = await fetch(`${API_URL}/faltantes/${id}`, {
-                            method: 'PUT',
-                            headers: obtenerCabeceras(),
-                            body: JSON.stringify({ cantidadAsurtir })
-                        });
-                        const d = await r.json();
-                        if(!r.ok) throw new Error(d.error);
-
-                        mostrarAlerta("Almacén Surtido", "Se ingresaron los nuevos activos generados dinámicamente.");
-                        actualizarTodo();
-                    } catch (err) { mostrarAlerta("Error", err.message, "error"); }
+                    await fetch(`${API_URL}/faltantes/${id}`, {
+                        method: 'PUT',
+                        headers: obtenerCabeceras(),
+                        body: JSON.stringify({ cantidadAsurtir })
+                    });
+                    actualizarTodo();
                 }
             });
         }
 
-        // === OPERACIONES CRUD: MÓDULO DAÑADOS ===
+        // === CONTROLADORES API: DAÑADOS ===
         async function obtenerDanados() {
             try {
                 const r = await fetch(`${API_URL}/danados`, { headers: obtenerCabeceras() });
@@ -530,10 +499,10 @@
                         <tr class="hover:bg-slate-800/40 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">${d.nombre}</td>
                             <td class="px-6 py-4 font-mono text-xs text-rose-400">${d.codigo}</td>
-                            <td class="px-6 py-4 text-slate-400 max-w-xs truncate">${d.reporte}</td>
+                            <td class="px-6 py-4 text-slate-400">${d.reporte}</td>
                             ${usuarioActual.rol === 'admin' ? `
                             <td class="px-6 py-4 text-right">
-                                <button onclick="eliminarDanado(${d.id})" class="text-slate-500 hover:text-slate-400 font-medium transition-colors">Archivar</button>
+                                <button onclick="eliminarDanado(${d.id})" class="text-slate-500 hover:text-slate-400 text-xs font-medium">Archivar</button>
                             </td>` : ''}
                         </tr>`;
                 });
@@ -546,33 +515,25 @@
             const codigo = document.getElementById('dan-codigo').value;
             const reporte = document.getElementById('dan-reporte').value;
 
-            if(!nombre || !codigo || !reporte) return mostrarAlerta("Campos vacíos", "Detalla la incidencia para auditoría.", "error");
+            if(!nombre || !codigo || !reporte) return;
 
-            try {
-                const r = await fetch(`${API_URL}/danados`, {
-                    method: 'POST',
-                    headers: obtenerCabeceras(),
-                    body: JSON.stringify({ nombre, codigo, reporte })
-                });
-                if(r.ok) {
-                    mostrarAlerta("Incidencia Reportada", "Equipo aislado lógicamente del inventario general.");
-                    document.getElementById('dan-nombre').value = '';
-                    document.getElementById('dan-codigo').value = '';
-                    document.getElementById('dan-reporte').value = '';
-                    actualizarTodo();
-                }
-            } catch(e) { console.error(e); }
+            await fetch(`${API_URL}/danados`, {
+                method: 'POST',
+                headers: obtenerCabeceras(),
+                body: JSON.stringify({ nombre, codigo, reporte })
+            });
+            document.getElementById('dan-nombre').value = '';
+            document.getElementById('dan-codigo').value = '';
+            document.getElementById('dan-reporte').value = '';
+            actualizarTodo();
         }
 
         async function eliminarDanado(id) {
-            try {
-                await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
-                mostrarAlerta("Registro Archivado", "La incidencia pasó al historial permanente.");
-                actualizarTodo();
-            } catch(e) { console.error(e); }
+            await fetch(`${API_URL}/danados/${id}`, { method: 'DELETE', headers: obtenerCabeceras() });
+            actualizarTodo();
         }
 
-        // === AUDITORÍA: MÓDULO BITÁCORA ===
+        // === BITÁCORA ===
         async function obtenerBitacora() {
             try {
                 const r = await fetch(`${API_URL}/bitacora`, { headers: obtenerCabeceras() });
@@ -580,40 +541,38 @@
                 let html = "";
                 datos.forEach(b => {
                     const colorAccion = b.accion === 'ALTA' ? 'text-emerald-400' : b.accion === 'BAJA' ? 'text-rose-500' : b.accion === 'FALLA' ? 'text-amber-500' : 'text-indigo-400';
-                    const fechaLocal = new Date(b.fecha).toLocaleString();
-                    html += `<div><span class="text-slate-500">[${fechaLocal}]</span> <span class="font-bold ${colorAccion}">${b.accion}</span>: <span class="text-slate-300">${b.detalles}</span></div>`;
+                    html += `<div><span class="text-slate-500">[${new Date(b.fecha).toLocaleString()}]</span> <span class="font-bold ${colorAccion}">${b.accion}</span>: <span class="text-slate-300">${b.detalles}</span></div>`;
                 });
-                document.getElementById('contenedor-bitacora').innerHTML = html || "<div>[SISTEMA]: No se registran operaciones en esta sesión.</div>";
+                document.getElementById('contenedor-bitacora').innerHTML = html || "<div>[SISTEMA]: Sin operaciones registradas.</div>";
             } catch(e) { console.error(e); }
         }
 
-        // === MÓDULO AGREGADO: EXPORTACIÓN FORMAL A PDF ===
+        // === DISPARADOR INTELIGENTE DE EXPORTACIÓN A PDF ===
         function imprimirReporteActual() {
             const titulos = {
-                'activos': 'Reporte de Inventario de Activos TI',
-                'faltantes': 'Reporte de Requerimientos y Demandas de Laboratorio',
-                'danados': 'Reporte Histórico de Equipos Fuera de Servicio',
-                'bitacora': 'Reporte de Auditoría y Bitácora Global'
+                'activos': 'Reporte del Inventario de Activos de Red',
+                'faltantes': 'Reporte de Demandas y Material Faltante',
+                'danados': 'Reporte de Fallas e Incidencias Técnicas',
+                'bitacora': 'Reporte de Auditoría - Historial de Transacciones'
             };
             
             const tituloOriginal = document.title;
-            // Modificamos el título del HTML dinámicamente para que el PDF se guarde con un nombre formal
-            document.title = `${titulos[pestanaActiva]} - Ingenieria de Informatica`;
+            // Modificamos dinámicamente el título del archivo para que el PDF se guarde con un nombre formal
+            document.title = `${titulos[seccionActual]} - Ingeniería de Informática`;
             
-            // Disparador nativo de impresión/guardado de PDF del navegador
+            // Disparador del sistema operativo
             window.print();
             
-            // Reestablecemos el nombre original del sitio
+            // Reestablecemos el título original
             document.title = tituloOriginal;
         }
 
-        // Helper global de notificaciones limpias
         function mostrarAlerta(titulo, mensaje, icono = 'success') {
             Swal.fire({
                 title: titulo,
                 text: mensaje,
                 icon: icono,
-                timer: 2500,
+                timer: 2000,
                 showConfirmButton: false,
                 background: '#1e293b',
                 color: '#f8fafc',
